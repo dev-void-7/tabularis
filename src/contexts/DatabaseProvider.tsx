@@ -392,6 +392,21 @@ export const DatabaseProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [activeConnectionId, connectionDataMap, updateConnectionData, loadSchemaData]);
 
+  const setSelectedDatabases = useCallback((newDatabases: string[]) => {
+    if (!activeConnectionId) return;
+    const currentData = connectionDataMap[activeConnectionId];
+    if (!currentData) return;
+
+    updateConnectionData(activeConnectionId, { selectedDatabases: newDatabases });
+
+    for (const db of newDatabases) {
+      const existing = currentData.databaseDataMap[db];
+      if (!existing?.isLoaded && !existing?.isLoading) {
+        loadDatabaseData(db);
+      }
+    }
+  }, [activeConnectionId, connectionDataMap, updateConnectionData, loadDatabaseData]);
+
   const connect = async (connectionId: string) => {
     // Capture previous state so we can restore it on failure
     const prevActiveConnectionId = activeConnectionId;
@@ -738,6 +753,7 @@ export const DatabaseProvider = ({ children }: { children: ReactNode }) => {
       setSelectedSchemas,
       loadDatabaseData,
       refreshDatabaseData,
+      setSelectedDatabases,
       getConnectionData,
       isConnectionOpen,
     }}>

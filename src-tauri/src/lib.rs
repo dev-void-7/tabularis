@@ -187,6 +187,7 @@ pub fn run() {
             commands::delete_ssh_connection,
             commands::test_ssh_connection,
             commands::get_schemas,
+            commands::get_available_databases,
             commands::get_tables,
             commands::get_columns,
             commands::get_foreign_keys,

@@ -241,6 +241,21 @@ pub async fn get_schemas<R: Runtime>(
 }
 
 #[tauri::command]
+pub async fn get_available_databases<R: Runtime>(
+    app: AppHandle<R>,
+    connection_id: String,
+) -> Result<Vec<String>, String> {
+    log::info!("Fetching available databases for connection: {}", connection_id);
+
+    let saved_conn = find_connection_by_id(&app, &connection_id)?;
+    let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
+    let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
+
+    let drv = driver_for(&saved_conn.params.driver).await?;
+    drv.get_databases(&params).await
+}
+
+#[tauri::command]
 pub async fn get_routines<R: Runtime>(
     app: AppHandle<R>,
     connection_id: String,

@@ -101,7 +101,9 @@
     "separateConnections": "Separate Connections",
     "splitGroup": "Split Group",
     "filterTables": "Filter tables...",
-    "noTablesMatch": "No tables match"
+    "noTablesMatch": "No tables match",
+    "filterDatabases": "Filter databases...",
+    "manageDatabases": "Manage Databases"
   },
   "mcp": {
     "title": "MCP Server Integration",

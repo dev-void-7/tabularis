@@ -53,7 +53,7 @@ export const Sidebar = () => {
 
   const handleSwitchToConnection = (connectionId: string) => {
     handleSwitch(connectionId);
-    if (location.pathname === "/") {
+    if (location.pathname === "/" || location.pathname === "/connections") {
       navigate("/editor");
     }
   };

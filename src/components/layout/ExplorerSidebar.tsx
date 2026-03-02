@@ -91,6 +91,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse }: Explo
     setSelectedSchemas,
     needsSchemaSelection,
     selectedDatabases,
+    setSelectedDatabases,
     databaseDataMap,
     loadDatabaseData,
     refreshDatabaseData,
@@ -146,6 +147,11 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse }: Explo
   const [isActionsDropdownOpen, setIsActionsDropdownOpen] = useState(false);
   const [isSchemaFilterOpen, setIsSchemaFilterOpen] = useState(false);
   const [pendingSchemaSelection, setPendingSchemaSelection] = useState<Set<string>>(new Set());
+  const [dbFilter, setDbFilter] = useState("");
+  const [isDbManagerOpen, setIsDbManagerOpen] = useState(false);
+  const [pendingDbSelection, setPendingDbSelection] = useState<Set<string>>(new Set());
+  const [allAvailableDatabases, setAllAvailableDatabases] = useState<string[]>([]);
+  const [isLoadingAllDbs, setIsLoadingAllDbs] = useState(false);
   const [viewEditorModal, setViewEditorModal] = useState<{
     isOpen: boolean;
     viewName?: string;
@@ -724,12 +730,146 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse }: Explo
               ) : isMultiDatabaseCapable(activeCapabilities) && selectedDatabases.length > 1 ? (
                 /* Multi-database MySQL layout */
                 <div>
+                  {/* Database header: label + manage button */}
                   <div className="flex items-center justify-between px-3 py-1.5">
                     <span className="text-xs font-semibold uppercase text-muted tracking-wider">
                       {t("sidebar.databases")} ({selectedDatabases.length})
                     </span>
+                    <div className="relative">
+                      <button
+                        onClick={async () => {
+                          if (!isDbManagerOpen) {
+                            setPendingDbSelection(new Set(selectedDatabases));
+                            setIsLoadingAllDbs(true);
+                            try {
+                              const all = await invoke<string[]>("get_available_databases", { connectionId: activeConnectionId });
+                              setAllAvailableDatabases(all);
+                            } catch (e) {
+                              console.error("Failed to load available databases:", e);
+                            } finally {
+                              setIsLoadingAllDbs(false);
+                            }
+                          }
+                          setIsDbManagerOpen(!isDbManagerOpen);
+                        }}
+                        className={`p-1 rounded transition-colors ${
+                          selectedDatabases.length < allAvailableDatabases.length && allAvailableDatabases.length > 0
+                            ? "text-blue-400 hover:text-blue-300 bg-blue-500/10"
+                            : "text-muted hover:text-secondary hover:bg-surface-secondary"
+                        }`}
+                        title={t("sidebar.manageDatabases")}
+                      >
+                        <Settings2 size={14} />
+                      </button>
+                      {isDbManagerOpen && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-40"
+                            onClick={() => setIsDbManagerOpen(false)}
+                          />
+                          <div className="absolute right-0 top-8 bg-elevated border border-default rounded-lg shadow-lg z-50 py-2 min-w-[200px] max-h-[320px] flex flex-col">
+                            <div className="flex items-center justify-between px-3 pb-2 border-b border-default">
+                              <span className="text-xs font-semibold text-secondary">
+                                {t("sidebar.manageDatabases")}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  if (pendingDbSelection.size === allAvailableDatabases.length) {
+                                    setPendingDbSelection(new Set());
+                                  } else {
+                                    setPendingDbSelection(new Set(allAvailableDatabases));
+                                  }
+                                }}
+                                className="text-xs text-blue-500 hover:underline"
+                              >
+                                {pendingDbSelection.size === allAvailableDatabases.length
+                                  ? t("sidebar.deselectAll")
+                                  : t("sidebar.selectAll")}
+                              </button>
+                            </div>
+                            <div className="overflow-y-auto py-1 flex-1">
+                              {isLoadingAllDbs ? (
+                                <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted">
+                                  <Loader2 size={12} className="animate-spin" />
+                                  {t("sidebar.loadingSchema")}
+                                </div>
+                              ) : allAvailableDatabases.map((dbName) => {
+                                const isSelected = pendingDbSelection.has(dbName);
+                                return (
+                                  <div
+                                    key={dbName}
+                                    onClick={() => {
+                                      const next = new Set(pendingDbSelection);
+                                      if (isSelected) {
+                                        next.delete(dbName);
+                                      } else {
+                                        next.add(dbName);
+                                      }
+                                      setPendingDbSelection(next);
+                                    }}
+                                    className={`flex items-center gap-2 px-3 py-1.5 cursor-pointer transition-colors ${
+                                      isSelected ? "text-primary hover:bg-surface-secondary" : "text-muted hover:bg-surface-secondary"
+                                    }`}
+                                  >
+                                    <div className={`w-4 h-4 flex items-center justify-center shrink-0 ${isSelected ? "text-blue-500" : "text-muted"}`}>
+                                      {isSelected ? <CheckSquare size={14} /> : <Square size={14} />}
+                                    </div>
+                                    <span className="text-sm truncate select-none">{dbName}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <div className="px-3 pt-2 border-t border-default">
+                              <button
+                                onClick={() => {
+                                  if (pendingDbSelection.size > 0) {
+                                    setSelectedDatabases(Array.from(pendingDbSelection));
+                                  }
+                                  setIsDbManagerOpen(false);
+                                }}
+                                disabled={pendingDbSelection.size === 0}
+                                className={`w-full flex items-center justify-center gap-1 px-3 py-1 rounded text-xs font-medium transition-colors ${
+                                  pendingDbSelection.size > 0
+                                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                                    : "bg-surface-secondary text-muted cursor-not-allowed"
+                                }`}
+                              >
+                                <Check size={12} />
+                                {t("sidebar.confirmSelection")}
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  {selectedDatabases.map((dbName) => (
+
+                  {/* Database filter input */}
+                  <div className="px-3 pb-1.5">
+                    <div className="relative flex items-center">
+                      <Search size={11} className="absolute left-2 text-muted pointer-events-none" />
+                      <input
+                        type="text"
+                        value={dbFilter}
+                        onChange={(e) => setDbFilter(e.target.value)}
+                        placeholder={t("sidebar.filterDatabases")}
+                        className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-6 py-1 border border-default focus:outline-none focus:border-blue-500/50"
+                      />
+                      {dbFilter && (
+                        <button
+                          onClick={() => setDbFilter("")}
+                          className="absolute right-1.5 text-muted hover:text-primary"
+                        >
+                          <X size={11} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {(dbFilter
+                    ? selectedDatabases.filter((db) => db.toLowerCase().includes(dbFilter.toLowerCase()))
+                    : selectedDatabases
+                  ).map((dbName) => (
                     <SidebarDatabaseItem
                       key={dbName}
                       databaseName={dbName}

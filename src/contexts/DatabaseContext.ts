@@ -101,6 +101,7 @@ export interface DatabaseContextType {
   setSelectedSchemas: (schemas: string[]) => Promise<void>;
   loadDatabaseData: (database: string) => Promise<void>;
   refreshDatabaseData: (database: string) => Promise<void>;
+  setSelectedDatabases: (databases: string[]) => void;
   getConnectionData: (connectionId: string) => ConnectionData | undefined;
   isConnectionOpen: (connectionId: string) => boolean;
 }

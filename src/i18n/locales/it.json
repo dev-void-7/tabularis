@@ -101,7 +101,9 @@
     "separateConnections": "Separa Connessioni",
     "splitGroup": "Gruppo Diviso",
     "filterTables": "Filtra tabelle...",
-    "noTablesMatch": "Nessuna tabella trovata"
+    "noTablesMatch": "Nessuna tabella trovata",
+    "filterDatabases": "Filtra database...",
+    "manageDatabases": "Gestisci Database"
   },
   "mcp": {
     "title": "Integrazione Server MCP",
