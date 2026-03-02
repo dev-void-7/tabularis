@@ -18,6 +18,8 @@ interface Props {
   onToggleSelect: (isCtrlHeld: boolean) => void;
   selectedConnectionIds: Set<string>;
   onActivateSplit: (mode: 'vertical' | 'horizontal') => void;
+  shortcutIndex?: number;
+  showShortcutHint?: boolean;
 }
 
 export const OpenConnectionItem = ({
@@ -30,6 +32,8 @@ export const OpenConnectionItem = ({
   onToggleSelect,
   selectedConnectionIds,
   onActivateSplit,
+  shortcutIndex,
+  showShortcutHint = false,
 }: Props) => {
   const { t } = useTranslation();
   const { isActive, isConnecting, name, database, sshEnabled, error } = connection;
@@ -127,9 +131,16 @@ export const OpenConnectionItem = ({
           )}
 
           {/* SSH badge */}
-          {sshEnabled && (
+          {sshEnabled && !showShortcutHint && (
             <div className="absolute top-1 right-1">
               <Shield size={9} className="text-emerald-400 fill-emerald-400/20" />
+            </div>
+          )}
+
+          {/* Shortcut hint badge */}
+          {showShortcutHint && shortcutIndex !== undefined && (
+            <div className="absolute -top-1 -left-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-white text-[9px] font-bold z-20 shadow-sm">
+              {shortcutIndex}
             </div>
           )}
 

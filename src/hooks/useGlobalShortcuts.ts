@@ -43,13 +43,14 @@ export function useGlobalShortcuts() {
       }
 
       // Cmd/Ctrl+Shift+1–9: switch to Nth open connection (on Mac accept both ⌘ and Ctrl)
+      // Use e.code (layout-independent) instead of e.key, because Shift+1 gives "!" not "1"
       const modifierHeld = isMac ? (e.metaKey || e.ctrlKey) : e.ctrlKey;
-      if (modifierHeld && e.shiftKey && /^[1-9]$/.test(e.key)) {
-        const idx = parseInt(e.key, 10) - 1;
-        const target = openConnections[idx];
-        if (target) {
+      if (modifierHeld && e.shiftKey && /^Digit[1-9]$/.test(e.code)) {
+        const idx = parseInt(e.code.slice(-1), 10) - 1;
+        const conn = openConnections[idx];
+        if (conn) {
           e.preventDefault();
-          handleSwitch(target.id);
+          handleSwitch(conn.id);
           navigate("/editor");
         }
       }

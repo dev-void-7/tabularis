@@ -22,6 +22,7 @@ import { useConnectionManager } from "../../hooks/useConnectionManager";
 import { useConnectionLayoutContext } from "../../contexts/useConnectionLayoutContext";
 import { isConnectionGrouped } from "../../utils/connectionLayout";
 import { useDrivers } from "../../hooks/useDrivers";
+import { useKeybindings } from "../../hooks/useKeybindings";
 
 export const Sidebar = () => {
   const { t } = useTranslation();
@@ -33,12 +34,30 @@ export const Sidebar = () => {
 
   const [isExplorerCollapsed, setIsExplorerCollapsed] = useState(false);
   const [isMcpModalOpen, setIsMcpModalOpen] = useState(false);
+  const [showShortcutHints, setShowShortcutHints] = useState(false);
+  const { isMac } = useKeybindings();
 
   useEffect(() => {
     const handler = () => setIsExplorerCollapsed((prev) => !prev);
     window.addEventListener("tabularis:toggle-sidebar", handler);
     return () => window.removeEventListener("tabularis:toggle-sidebar", handler);
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const modifierHeld = isMac ? (e.metaKey || e.ctrlKey) : e.ctrlKey;
+      if (modifierHeld && e.shiftKey) setShowShortcutHints(true);
+    };
+    const handleKeyUp = () => setShowShortcutHints(false);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleKeyUp);
+    };
+  }, [isMac]);
 
   const {
     openConnections,
@@ -138,7 +157,7 @@ export const Sidebar = () => {
               {/* Show individual items for non-grouped connections */}
               {openConnections
                 .filter(conn => !isConnectionGrouped(conn.id, splitView))
-                .map(conn => (
+                .map((conn, idx) => (
                   <OpenConnectionItem
                     key={conn.id}
                     connection={conn}
@@ -150,6 +169,8 @@ export const Sidebar = () => {
                     onToggleSelect={(isCtrlHeld) => toggleSelection(conn.id, isCtrlHeld)}
                     selectedConnectionIds={selectedConnectionIds}
                     onActivateSplit={activateSplit}
+                    shortcutIndex={idx + 1}
+                    showShortcutHint={showShortcutHints && idx < 9}
                   />
                 ))}
             </div>

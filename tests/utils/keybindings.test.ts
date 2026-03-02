@@ -183,6 +183,26 @@ describe('parseCombo', () => {
   it('parses Alt+F4', () => {
     expect(parseCombo('Alt+F4')).toEqual({ altKey: true, key: 'F4' });
   });
+
+  it('reverse-maps arrow symbol → to ArrowRight', () => {
+    expect(parseCombo('Ctrl+→')).toEqual({ ctrlKey: true, key: 'ArrowRight' });
+  });
+
+  it('reverse-maps arrow symbol ← to ArrowLeft', () => {
+    expect(parseCombo('Ctrl+←')).toEqual({ ctrlKey: true, key: 'ArrowLeft' });
+  });
+
+  it('reverse-maps ⌫ to Backspace', () => {
+    expect(parseCombo('Ctrl+⌫')).toEqual({ ctrlKey: true, key: 'Backspace' });
+  });
+
+  it('reverse-maps Space to the space character', () => {
+    expect(parseCombo('Ctrl+Space')).toEqual({ ctrlKey: true, key: ' ' });
+  });
+
+  it('reverse-maps Esc to Escape', () => {
+    expect(parseCombo('Ctrl+Esc')).toEqual({ ctrlKey: true, key: 'Escape' });
+  });
 });
 
 // ─── formatEvent ──────────────────────────────────────────────────────────────
@@ -217,6 +237,11 @@ describe('formatEvent', () => {
     const event = makeEvent({ key: 'ArrowLeft', ctrlKey: true });
     expect(formatEvent(event, false)).toBe('Ctrl+←');
   });
+
+  it('formats spacebar as Space', () => {
+    const event = makeEvent({ key: ' ', ctrlKey: true });
+    expect(formatEvent(event, false)).toBe('Ctrl+Space');
+  });
 });
 
 // ─── formatMatch ──────────────────────────────────────────────────────────────
@@ -240,5 +265,10 @@ describe('formatMatch', () => {
   it('formats ArrowRight on Win', () => {
     const match: KeyMatch = { ctrlKey: true, key: 'ArrowRight' };
     expect(formatMatch(match, false)).toBe('Ctrl+→');
+  });
+
+  it('formats space key as Space', () => {
+    const match: KeyMatch = { ctrlKey: true, key: ' ' };
+    expect(formatMatch(match, false)).toBe('Ctrl+Space');
   });
 });

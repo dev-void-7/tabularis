@@ -33,6 +33,22 @@ const MAC_SYMBOL_MAP: Record<string, string> = {
   Escape: "Esc",
   Backspace: "⌫",
   Delete: "Del",
+  " ": "Space",
+};
+
+/**
+ * Reverse of MAC_SYMBOL_MAP: maps display strings back to canonical e.key values.
+ * Needed so that parseCombo("Ctrl+→") correctly produces { key: "ArrowRight" }.
+ */
+const DISPLAY_TO_KEY: Record<string, string> = {
+  "→": "ArrowRight",
+  "←": "ArrowLeft",
+  "↑": "ArrowUp",
+  "↓": "ArrowDown",
+  "⌫": "Backspace",
+  Del: "Delete",
+  Esc: "Escape",
+  Space: " ",
 };
 
 /**
@@ -95,8 +111,13 @@ export function parseCombo(combo: string): KeyMatch {
     } else if (p === "Alt" || p === "Option" || p === "⌥") {
       result.altKey = true;
     } else {
-      // Last non-modifier part is the key; lowercase for letter keys
-      result.key = p.length === 1 ? p.toLowerCase() : p;
+      // Reverse-map display symbols back to canonical e.key values, then
+      // lowercase single-character keys (letters) for consistent matching.
+      if (DISPLAY_TO_KEY[p] !== undefined) {
+        result.key = DISPLAY_TO_KEY[p];
+      } else {
+        result.key = p.length === 1 ? p.toLowerCase() : p;
+      }
     }
   }
 
