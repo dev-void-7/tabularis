@@ -93,15 +93,15 @@ export interface DatabaseContextType {
   disconnect: (connectionId?: string) => Promise<void>;
   switchConnection: (connectionId: string) => void;
   setActiveTable: (table: string | null, schema?: string | null) => void;
-  refreshTables: () => Promise<void>;
-  refreshViews: () => Promise<void>;
-  refreshRoutines: () => Promise<void>;
-  loadSchemaData: (schema: string) => Promise<void>;
-  refreshSchemaData: (schema: string) => Promise<void>;
-  setSelectedSchemas: (schemas: string[]) => Promise<void>;
-  loadDatabaseData: (database: string) => Promise<void>;
-  refreshDatabaseData: (database: string) => Promise<void>;
-  setSelectedDatabases: (databases: string[]) => void;
+  refreshTables: (connectionId?: string) => Promise<void>;
+  refreshViews: (connectionId?: string) => Promise<void>;
+  refreshRoutines: (connectionId?: string) => Promise<void>;
+  loadSchemaData: (schema: string, connectionId?: string) => Promise<void>;
+  refreshSchemaData: (schema: string, connectionId?: string) => Promise<void>;
+  setSelectedSchemas: (schemas: string[], connectionId?: string) => Promise<void>;
+  loadDatabaseData: (database: string, connectionId?: string) => Promise<void>;
+  refreshDatabaseData: (database: string, connectionId?: string) => Promise<void>;
+  setSelectedDatabases: (databases: string[], connectionId?: string) => void;
   getConnectionData: (connectionId: string) => ConnectionData | undefined;
   isConnectionOpen: (connectionId: string) => boolean;
 }

@@ -10,6 +10,7 @@ export const MainLayout = () => {
   const showSplit = !!splitView
     && isSplitVisible
     && location.pathname !== '/'
+    && location.pathname !== '/connections'
     && location.pathname !== '/settings';
 
   return (

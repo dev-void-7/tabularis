@@ -308,9 +308,14 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse }: Explo
         )}
 
         <div className="p-4 border-b border-default font-semibold text-sm text-primary flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Database size={16} className="text-blue-400" />
-            <span>{t("sidebar.explorer")}</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <Database size={16} className="text-blue-400 shrink-0" />
+            <div className="flex flex-col min-w-0">
+              <span>{t("sidebar.explorer")}</span>
+              {activeConnectionName && (
+                <span className="text-xs font-normal text-muted truncate">{activeConnectionName}</span>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-1">
             {/* Global actions — hidden in multi-database mode (actions move to each database node) */}
