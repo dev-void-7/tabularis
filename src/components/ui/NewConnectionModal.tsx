@@ -11,7 +11,6 @@ import {
   FolderOpen,
   CheckSquare,
   Square,
-  Network,
   Plug,
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
@@ -23,7 +22,7 @@ import { useDrivers } from "../../hooks/useDrivers";
 import type { PluginManifest } from "../../types/plugins";
 import { loadSshConnections, type SshConnection } from "../../utils/ssh";
 import { isMultiDatabaseCapable } from "../../utils/database";
-import { getDriverColor, getDriverIcon, getDriverColorStyle } from "../../utils/driverUI";
+import { getDriverIcon, getDriverColorStyle } from "../../utils/driverUI";
 
 interface ConnectionParams {
   driver: string;

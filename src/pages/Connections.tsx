@@ -67,7 +67,7 @@ interface ActionButtonsProps {
   onDelete: () => void;
 }
 const ActionButtons = ({
-  conn, isOpen, isDriverEnabled, onConnect, onDisconnect, onEdit, onDuplicate, onDelete,
+  isOpen, isDriverEnabled, onConnect, onDisconnect, onEdit, onDuplicate, onDelete,
 }: ActionButtonsProps) => {
   const { t } = useTranslation();
   return (
@@ -385,7 +385,6 @@ export const Connections = () => {
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {filtered.map(conn => {
-                  const isActive = activeConnectionId === conn.id;
                   const isOpen = isConnectionOpen(conn.id);
                   const isConnecting = connectingId === conn.id;
                   const capabilities = getCapabilitiesForDriver(conn.params.driver, allDrivers);

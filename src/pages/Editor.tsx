@@ -178,7 +178,7 @@ export const Editor = () => {
         connectionId: tab.connectionId,
       });
     },
-    [addTab, activeDriver],
+    [addTab, activeDriver, activeCapabilities?.schemas],
   );
 
   const [saveQueryModal, setSaveQueryModal] = useState<{
@@ -548,7 +548,7 @@ export const Editor = () => {
         });
       }
     },
-    [activeConnectionId, updateTab, settings.resultPageSize, fetchPkColumn, t, activeDriver, activeSchema],
+    [activeConnectionId, updateTab, settings.resultPageSize, fetchPkColumn, t, activeDriver, activeSchema, activeCapabilities?.schemas],
   );
 
   const loadCount = useCallback(async () => {
