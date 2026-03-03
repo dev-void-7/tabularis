@@ -1,5 +1,5 @@
 name: tabularis
-base: core22
+base: core24
 version: '0.0.0'
 summary: A lightweight, developer-focused database management tool
 description: |
@@ -28,6 +28,9 @@ apps:
   tabularis:
     command: usr/bin/tabularis
     extensions: [gnome]
+    environment:
+       WEBKIT_DISABLE_DMABUF_RENDERER: "1"   # disable DMABuf in WebKit
+       LIBGL_ALWAYS_SOFTWARE: "1"            
     plugs:
       - home
       - network
