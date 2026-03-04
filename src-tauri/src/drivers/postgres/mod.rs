@@ -9,6 +9,7 @@ use crate::models::{
 use crate::pool_manager::get_postgres_pool;
 use extract::extract_value;
 use sqlx::{Column, Row};
+use uuid::Uuid;
 
 // Helper function to escape double quotes in identifiers for PostgreSQL
 fn escape_identifier(name: &str) -> String {
@@ -447,7 +448,14 @@ pub async fn save_blob_column_to_file(
                 sqlx::query(&query).bind(n.as_f64()).fetch_one(&pool).await
             }
         }
-        serde_json::Value::String(s) => sqlx::query(&query).bind(s).fetch_one(&pool).await,
+        serde_json::Value::String(s) => {
+            // Try parsing as UUID so PostgreSQL receives the correct type
+            if let Ok(uuid) = s.parse::<Uuid>() {
+                sqlx::query(&query).bind(uuid).fetch_one(&pool).await
+            } else {
+                sqlx::query(&query).bind(s).fetch_one(&pool).await
+            }
+        }
         _ => return Err("Unsupported PK type".into()),
     }
     .map_err(|e| e.to_string())?;
@@ -482,7 +490,14 @@ pub async fn fetch_blob_column_as_data_url(
                 sqlx::query(&query).bind(n.as_f64()).fetch_one(&pool).await
             }
         }
-        serde_json::Value::String(s) => sqlx::query(&query).bind(s).fetch_one(&pool).await,
+        serde_json::Value::String(s) => {
+            // Try parsing as UUID so PostgreSQL receives the correct type
+            if let Ok(uuid) = s.parse::<Uuid>() {
+                sqlx::query(&query).bind(uuid).fetch_one(&pool).await
+            } else {
+                sqlx::query(&query).bind(s).fetch_one(&pool).await
+            }
+        }
         _ => return Err("Unsupported PK type".into()),
     }
     .map_err(|e| e.to_string())?;
@@ -515,7 +530,14 @@ pub async fn delete_record(
                 sqlx::query(&query).bind(n.as_f64()).execute(&pool).await
             }
         }
-        serde_json::Value::String(s) => sqlx::query(&query).bind(s).execute(&pool).await,
+        serde_json::Value::String(s) => {
+            // Try parsing as UUID so PostgreSQL receives the correct type
+            if let Ok(uuid) = s.parse::<Uuid>() {
+                sqlx::query(&query).bind(uuid).execute(&pool).await
+            } else {
+                sqlx::query(&query).bind(s).execute(&pool).await
+            }
+        }
         _ => return Err("Unsupported PK type".into()),
     };
 
@@ -568,6 +590,12 @@ pub async fn update_record(
                 qb.push("ST_GeomFromText(");
                 qb.push_bind(s);
                 qb.push(")");
+            } else if s.parse::<Uuid>().is_ok() {
+                // Wrap in explicit SQL CAST so PostgreSQL receives the correct type
+                // regardless of how sqlx QueryBuilder infers the parameter OID
+                qb.push("CAST(");
+                qb.push_bind(s);
+                qb.push(" AS uuid)");
             } else {
                 qb.push_bind(s);
             }
@@ -592,7 +620,13 @@ pub async fn update_record(
             }
         }
         serde_json::Value::String(s) => {
-            qb.push_bind(s);
+            if s.parse::<Uuid>().is_ok() {
+                qb.push("CAST(");
+                qb.push_bind(s);
+                qb.push(" AS uuid)");
+            } else {
+                qb.push_bind(s);
+            }
         }
         _ => return Err("Unsupported PK type".into()),
     }
@@ -660,6 +694,10 @@ pub async fn insert_record(
                         separated.push_unseparated("ST_GeomFromText(");
                         separated.push_bind_unseparated(s);
                         separated.push_unseparated(")");
+                    } else if s.parse::<Uuid>().is_ok() {
+                        separated.push_unseparated("CAST(");
+                        separated.push_bind_unseparated(s);
+                        separated.push_unseparated(" AS uuid)");
                     } else {
                         separated.push_bind(s);
                     }
