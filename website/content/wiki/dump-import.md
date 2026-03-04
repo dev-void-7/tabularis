@@ -36,7 +36,7 @@ The import can be cancelled at any time. Tabularis will close the modal automati
 
 ## Schema-Level Dump & Import (PostgreSQL)
 
-For PostgreSQL connections, dump and import operations are also available at the **schema** level. Right-click any schema node in the sidebar to access **Dump Schema** or **Import into Schema**. The options and workflow are identical to the database-level counterparts, but scope is limited to the selected schema.
+For PostgreSQL connections, dump and import operations are also available at the **schema** level. Right-click any schema node in the sidebar to access **Dump Schema** or **Import into Schema**. The operation covers the entire selected schema and follows the same streaming and cancellation model as the database-level dump.
 
 This is particularly useful when working with multi-schema databases where you want to snapshot or restore a single schema without touching the rest of the database.
 

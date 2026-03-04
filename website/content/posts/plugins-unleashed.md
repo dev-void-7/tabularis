@@ -142,3 +142,5 @@ The resource data comes from `sysinfo`, a cross-platform Rust crate for system m
 
 The plugin system shipped in v0.9.0 was the foundation. v0.9.2 is the first release where it feels complete: you can install, update, rollback, enable, disable, and monitor plugins without touching the filesystem manually. The CSV plugin shows that building a driver does not require a compiled language. The Task Manager ensures that the processes powering your connections are never a black box.
 
+:::contributors:::
+

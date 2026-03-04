@@ -39,6 +39,8 @@ Each tab is fully isolated — its own query, its own results, its own paginatio
 
 It sounds basic, but working across multiple queries simultaneously is a fundamental part of how database work actually happens. This change made Tabularis feel like a proper tool.
 
+:::contributors:::
+
 ## What's Next
 
 The visual builder covers the common case well. Future iterations will handle subqueries and CTEs in the canvas. For now, the handoff to the SQL editor is clean enough that there's no real gap.

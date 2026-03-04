@@ -62,6 +62,8 @@ This is intentional. Documentation written only by the maintainers reflects only
 
 The wiki belongs to whoever writes it. Consider this an open invitation.
 
+:::contributors:::
+
 ## What's Next
 
 The plugin ecosystem is still young. We want to see drivers for DuckDB, ClickHouse, CockroachDB, and more. We want the registry to grow. We want the community to build things we haven't thought of yet.

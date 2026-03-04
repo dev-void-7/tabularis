@@ -45,6 +45,8 @@ A smaller addition from this release: right-clicking an editor tab opens a conte
 
 Neither keychain integration nor i18n is a shiny demo feature. They're infrastructure. Getting them right in v0.6.0 means future releases can focus on capabilities rather than catching up on correctness. That was the point.
 
+:::contributors:::
+
 ---
 
 ![Connection Setup in Tabularis v0.6.0](../img/screenshot-4.png)

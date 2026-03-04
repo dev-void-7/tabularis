@@ -110,6 +110,8 @@ When you edited a row in the data grid, the sidebar row counter and summary pane
 
 ---
 
+:::contributors:::
+
 ## What's Next
 
 Multi-database support opens the door to **cross-database autocomplete** in the SQL editor and **ER diagrams spanning multiple databases on the same server**. Both are on the roadmap for the next releases.

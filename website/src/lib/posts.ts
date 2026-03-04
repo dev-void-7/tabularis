@@ -75,9 +75,9 @@ export function getPostsByTag(tag: string): PostMeta[] {
   return getAllPosts().filter((p) => p.tags.includes(tag));
 }
 
-export function getPostBySlug(
-  slug: string
-): { meta: PostMeta; html: string } | null {
+export async function getPostBySlug(
+  slug: string,
+): Promise<{ meta: PostMeta; html: string } | null> {
   const mdPath = path.join(POSTS_DIR, `${slug}.md`);
   if (!fs.existsSync(mdPath)) return null;
 
@@ -94,8 +94,74 @@ export function getPostBySlug(
     og: data.og as PostOg | undefined,
   };
 
-  const html = marked.parse(content) as string;
+  let processedContent = content;
+  if (processedContent.includes(":::contributors:::")) {
+    if (meta.release) {
+      const usernames = await fetchReleaseContributors(meta.release);
+      processedContent = processedContent.replace(
+        ":::contributors:::",
+        renderContributorsHtml(usernames, meta.release),
+      );
+    } else {
+      processedContent = processedContent.replace(":::contributors:::", "");
+    }
+  }
+
+  const html = marked.parse(processedContent) as string;
   return { meta, html };
+}
+
+async function fetchReleaseContributors(tag: string): Promise<string[]> {
+  try {
+    const relRes = await fetch(
+      "https://api.github.com/repos/debba/tabularis/releases?per_page=100",
+      { headers: { Accept: "application/vnd.github+json" } },
+    );
+    const releases: { tag_name: string }[] = await relRes.json();
+    const idx = releases.findIndex((r) => r.tag_name === tag);
+    const prevTag =
+      idx >= 0 && idx + 1 < releases.length
+        ? releases[idx + 1].tag_name
+        : null;
+    if (!prevTag) return [];
+
+    const cmpRes = await fetch(
+      `https://api.github.com/repos/debba/tabularis/compare/${prevTag}...${tag}`,
+      { headers: { Accept: "application/vnd.github+json" } },
+    );
+    const data: {
+      commits: { author: { login: string; type: string } | null }[];
+    } = await cmpRes.json();
+    const users = new Set<string>();
+    for (const commit of data.commits ?? []) {
+      const author = commit.author;
+      if (
+        author?.login &&
+        author.type !== "Bot" &&
+        !author.login.endsWith("[bot]")
+      ) {
+        users.add(author.login);
+      }
+    }
+    return Array.from(users);
+  } catch {
+    return [];
+  }
+}
+
+function renderContributorsHtml(usernames: string[], release?: string): string {
+  if (!usernames.length) return "";
+  const label = release ? `Contributors in ${release}` : "Contributors";
+  const items = usernames
+    .map(
+      (u) =>
+        `<a class="contributor-item" href="https://github.com/${u}" target="_blank" rel="noopener noreferrer">` +
+        `<img src="https://github.com/${u}.png?size=64" alt="${u}" class="contributor-avatar" />` +
+        `<span class="contributor-name">@${u}</span>` +
+        `</a>`,
+    )
+    .join("");
+  return `<div class="contributors-block"><span class="contributors-label">${label}</span><div class="contributors-list">${items}</div></div>`;
 }
 
 export function getAdjacentPosts(slug: string): {

@@ -48,6 +48,8 @@ v0.8.0 also adds one-click CSV and JSON export for query results. Run your query
 
 AI assistance is always optional and explicitly opt-in. If you prefer to write every query by hand, nothing changes. But when you need it, it's one tab away.
 
+:::contributors:::
+
 ---
 
 ![AI Settings in Tabularis v0.8.0](../img/screenshot-8.png)

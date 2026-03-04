@@ -50,6 +50,8 @@ We shipped the plugin system alongside a reference implementation: [tabularis-du
 
 Install it from Settings → Plugins, point it at your `.db` file, and you have full DuckDB support in under a minute.
 
+:::contributors:::
+
 ## What's Next
 
 The [plugin guide](https://github.com/debba/tabularis/blob/main/plugins/PLUGIN_GUIDE.md) covers the full JSON-RPC protocol, manifest format, data types, and includes a Rust skeleton to get you started. Build a driver for your database, list it in the registry, and Tabularis users can discover it without waiting for an official release.

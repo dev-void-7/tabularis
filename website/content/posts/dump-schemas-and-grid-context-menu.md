@@ -23,9 +23,9 @@ Dump and import operations now work at the **schema level** for PostgreSQL, not 
 
 Previously, the only entry point for dump and import was a right-click on a database node. That worked fine for MySQL, but PostgreSQL workflows tend to be organized around schemas — and grabbing a snapshot of a single schema while leaving the rest of the database untouched wasn't possible from within Tabularis.
 
-Now it is. Right-click any schema node in the sidebar and you'll find **Dump Schema** and **Import into Schema**. The workflow is identical to the database-level version: choose what to include (structure, data, table selection), pick a destination file, and Tabularis streams the dump to disk with live elapsed-time feedback. Import works the same way — select a `.sql` file and watch the progress bar.
+Now it is. Right-click any schema node in the sidebar and you'll find **Dump Schema** and **Import into Schema**. Pick a destination file and Tabularis streams the dump to disk with live elapsed-time feedback. Import works the same way — select a `.sql` file and watch the progress bar.
 
-This is especially useful on shared PostgreSQL servers where each application owns its own schema. You can snapshot `app_schema` at any point without having to touch `analytics_schema` or any of the others sitting in the same database.
+This is especially useful on shared PostgreSQL servers where each application owns its own schema. You can snapshot `billing` at any point without having to touch `inventory`, `reporting`, or any of the others sitting in the same database.
 
 ---
 
@@ -62,6 +62,8 @@ The in-app updater had two related issues: it could serve a cached (stale) updat
 Both are fixed. The updater now bypasses the cache when checking for updates, and triggers an automatic restart once the new version is installed.
 
 ---
+
+:::contributors:::
 
 ## What's Next
 

@@ -45,6 +45,8 @@ It's the clearest way to understand an unfamiliar database at a glance, and it u
 
 Schema work used to mean context-switching to a terminal or opening another tool. v0.5.0 closes that loop.
 
+:::contributors:::
+
 ---
 
 ![Schema Creation Wizard in Tabularis v0.5.0](../img/screenshot-3.png)
