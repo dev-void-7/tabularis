@@ -187,7 +187,10 @@ pub async fn check_for_updates(app: AppHandle, force: bool) -> Result<UpdateChec
 
                         if now - cache.last_checked < CACHE_DURATION_SECS {
                             if let Some(result) = cache.last_result {
-                                return Ok(result);
+                                // Invalidate cache if the app was updated since it was written
+                                if result.current_version == env!("CARGO_PKG_VERSION") {
+                                    return Ok(result);
+                                }
                             }
                         }
                     }
@@ -274,8 +277,7 @@ pub async fn download_and_install_update(app: AppHandle) -> Result<(), String> {
             .await
             .map_err(|e| e.to_string())?;
 
-        // Dopo l'installazione, l'app si riavvierà automaticamente
-        Ok(())
+        app.restart();
     } else {
         Err("No update available".to_string())
     }
