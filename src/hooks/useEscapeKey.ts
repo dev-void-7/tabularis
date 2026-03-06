@@ -13,16 +13,17 @@ export const useEscapeKey = (isOpen: boolean, onClose: () => void) => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && modalStack[modalStack.length - 1] === modalId) {
+        e.preventDefault();
         onClose();
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown, true);
 
     return () => {
       const idx = modalStack.lastIndexOf(modalId);
       if (idx !== -1) modalStack.splice(idx, 1);
-      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown, true);
     };
   }, [isOpen, onClose]);
 };
