@@ -191,9 +191,9 @@ pub fn find_connection_by_id<R: Runtime>(
     if !path.exists() {
         return Err("Connection not found".into());
     }
-    let content = fs::read_to_string(path).map_err(|e| e.to_string())?;
-    let connections: Vec<SavedConnection> = serde_json::from_str(&content).unwrap_or_default();
-    let mut conn = connections
+    // Use persistence module to properly load connections (handles both old and new formats)
+    let conn_file = persistence::load_connections_file(&path)?;
+    let mut conn = conn_file.connections
         .into_iter()
         .find(|c| c.id == id)
         .ok_or_else(|| "Connection not found".to_string())?;
