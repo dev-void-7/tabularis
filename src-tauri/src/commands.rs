@@ -284,6 +284,14 @@ pub fn find_connection_by_id<R: Runtime>(
 // --- Commands ---
 
 #[tauri::command]
+pub async fn get_connection_by_id<R: Runtime>(
+    app: AppHandle<R>,
+    id: String,
+) -> Result<SavedConnection, String> {
+    find_connection_by_id(&app, &id)
+}
+
+#[tauri::command]
 pub async fn get_schemas<R: Runtime>(
     app: AppHandle<R>,
     connection_id: String,

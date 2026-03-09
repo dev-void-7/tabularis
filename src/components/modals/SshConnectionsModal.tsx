@@ -243,12 +243,8 @@ export function SshConnectionsModal({
       conn.auth_type ||
       (conn.key_file && conn.key_file.trim() !== "" ? "ssh_key" : "password");
 
-    // Don't load password/key_passphrase into form when editing
-    // They will be retrieved from keychain by the backend when needed
     setFormData({
       ...conn,
-      password: undefined,
-      key_passphrase: undefined,
       auth_type,
     });
     setPasswordDirty(false);

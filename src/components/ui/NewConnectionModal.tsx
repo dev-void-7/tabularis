@@ -23,6 +23,7 @@ import { Modal } from "./Modal";
 import type { PluginManifest } from "../../types/plugins";
 import { loadSshConnections, type SshConnection } from "../../utils/ssh";
 import { isMultiDatabaseCapable } from "../../utils/database";
+import { fetchConnectionWithCredentials } from "../../utils/credentials";
 import { getDriverIcon, getDriverColorStyle } from "../../utils/driverUI";
 
 interface ConnectionParams {
@@ -167,14 +168,12 @@ export const NewConnectionModal = ({
         ...formData,
         port: formData.port != null ? Number(formData.port) : undefined,
       };
-      if (initialConnection) {
-        if (!passwordDirty) delete listParams.password;
-        if (!sshPasswordDirty) delete listParams.ssh_password;
-      }
       const databases = await invoke<string[]>("list_databases", {
         request: { params: { ...listParams }, connection_id: initialConnection?.id },
       });
       setAvailableDatabases(databases);
+      // Preserve existing selections that are valid in the new list
+      setSelectedDatabasesState((prev) => prev.filter((db) => databases.includes(db)));
     } catch (err) {
       const errorMsg =
         typeof err === "string" ? err : err instanceof Error ? err.message : t("newConnection.failLoadDatabases");
@@ -189,45 +188,46 @@ export const NewConnectionModal = ({
   useEffect(() => {
     if (!isOpen) return;
     const init = async () => {
-      if (initialConnection) {
-        setName(initialConnection.name);
-        setDriver(initialConnection.params.driver);
-        const db = initialConnection.params.database;
-        // When editing, don't populate password fields - they're stored in keychain
-        // User will only see a placeholder and must re-enter if they want to change
-        const paramsWithoutSecrets = {
-          ...initialConnection.params,
-          password: undefined,
-          ssh_password: undefined,
-          ssh_key_passphrase: undefined,
-        };
-        if (Array.isArray(db)) {
-          setSelectedDatabasesState(db);
-          setFormData({ ...paramsWithoutSecrets, database: db[0] ?? "" });
-        } else {
-          setSelectedDatabasesState([]);
-          setFormData({ ...paramsWithoutSecrets });
-        }
-        setPasswordDirty(false);
-        setSshPasswordDirty(false);
-        setDbSearchQuery("");
-        setSshMode(initialConnection.params.ssh_connection_id ? "existing" : "inline");
-      } else {
-        setName("");
-        setDriver("mysql");
-        setFormData({ host: "localhost", port: 3306, username: "", database: "", ssh_enabled: false, ssh_port: 22 });
-        setSelectedDatabasesState([]);
-        setDbSearchQuery("");
-        setPasswordDirty(false);
-        setSshPasswordDirty(false);
-        setSshMode("existing");
-      }
+      // Reset common state first so it's always clean even if async calls below fail
       setStatus("idle");
       setMessage("");
       setTestResult(null);
       setActiveTab("general");
       setAvailableDatabases([]);
       setDatabaseLoadError(null);
+      setPasswordDirty(false);
+      setSshPasswordDirty(false);
+      setDbSearchQuery("");
+
+      if (initialConnection) {
+        setName(initialConnection.name);
+        setDriver(initialConnection.params.driver);
+        const db = initialConnection.params.database;
+        setSshMode(initialConnection.params.ssh_connection_id ? "existing" : "inline");
+
+        let params = initialConnection.params;
+        try {
+          const fullConn = await fetchConnectionWithCredentials(initialConnection.id);
+          params = fullConn.params;
+        } catch {
+          // fallback: use params without secrets (backend will retrieve from keychain)
+        }
+
+        if (Array.isArray(db)) {
+          setSelectedDatabasesState(db);
+          setFormData({ ...params, database: db[0] ?? "" });
+        } else {
+          setSelectedDatabasesState([]);
+          setFormData({ ...params });
+        }
+      } else {
+        setName("");
+        setDriver("mysql");
+        setFormData({ host: "localhost", port: 3306, username: "", database: "", ssh_enabled: false, ssh_port: 22 });
+        setSelectedDatabasesState([]);
+        setSshMode("existing");
+      }
+
       await loadSshConnectionsList();
     };
     void init();
@@ -260,10 +260,6 @@ export const NewConnectionModal = ({
           ? (selectedDatabasesState[0] ?? (typeof formData.database === "string" ? formData.database : ""))
           : formData.database,
       };
-      if (initialConnection) {
-        if (!passwordDirty) delete testParams.password;
-        if (!sshPasswordDirty) delete testParams.ssh_password;
-      }
       const result = await invoke<string>("test_connection", {
         request: { params: { ...testParams }, connection_id: initialConnection?.id },
       });
