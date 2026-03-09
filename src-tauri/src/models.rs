@@ -95,6 +95,7 @@ pub struct ConnectionParams {
     pub username: Option<String>,
     pub password: Option<String>,
     pub database: DatabaseSelection,
+    pub ssl_mode: Option<String>,
     // SSH Tunnel
     pub ssh_enabled: Option<bool>,
     pub ssh_connection_id: Option<String>,

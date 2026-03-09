@@ -1,6 +1,6 @@
 use crate::models::ConnectionParams;
 use once_cell::sync::Lazy;
-use sqlx::{MySql, Pool, Postgres, Sqlite};
+use sqlx::{postgres::PgConnectOptions, MySql, Pool, Postgres, Sqlite};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -45,17 +45,21 @@ fn build_mysql_url(params: &ConnectionParams) -> String {
     )
 }
 
-fn build_postgres_url(params: &ConnectionParams) -> String {
-    let user = encode(params.username.as_deref().unwrap_or_default());
-    let pass = encode(params.password.as_deref().unwrap_or_default());
-    format!(
-        "postgres://{}:{}@{}:{}/{}",
-        user,
-        pass,
-        params.host.as_deref().unwrap_or("localhost"),
-        params.port.unwrap_or(5432),
-        params.database
-    )
+fn build_postgres_connectoptions(params: &ConnectionParams) -> PgConnectOptions {
+    let mut options = PgConnectOptions::new()
+        .username(params.username.as_deref().unwrap_or_default())
+        .password(params.password.as_deref().unwrap_or_default())
+        .port(params.port.unwrap_or(5432))
+        .host(params.host.as_deref().unwrap_or_default())
+        .database(&format!("{}", params.database));
+
+    if let Some(ssl_mode) = params.ssl_mode.as_deref() {
+        if let Ok(mode) = ssl_mode.parse() {
+            options = options.ssl_mode(mode);
+        }
+    }
+
+    options
 }
 
 fn build_sqlite_url(params: &ConnectionParams) -> String {
@@ -149,10 +153,10 @@ pub async fn get_postgres_pool_with_id(
         params.host,
         key
     );
-    let url = build_postgres_url(params);
+    let copts = build_postgres_connectoptions(params);
     let pool = sqlx::postgres::PgPoolOptions::new()
         .max_connections(10)
-        .connect(&url)
+        .connect_with(copts)
         .await
         .map_err(|e| {
             log::error!("Failed to create PostgreSQL connection pool: {}", e);
