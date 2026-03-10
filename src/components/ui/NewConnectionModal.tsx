@@ -12,6 +12,7 @@ import {
   CheckSquare,
   Square,
   Plug,
+  Info,
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -257,6 +258,7 @@ export const NewConnectionModal = ({
     setDatabaseLoadError(null);
     setStatus("idle");
     setMessage("");
+    setActiveTab("general");
   };
 
   const testConnection = async () => {
@@ -330,7 +332,12 @@ export const NewConnectionModal = ({
   const generalTabContent = (
     <div className="space-y-4">
       {/* API-based: no connection form needed */}
-      {noConnectionRequired ? null : activeDriver?.capabilities?.file_based === true || activeDriver?.capabilities?.folder_based === true ? (
+      {noConnectionRequired ? (
+        <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted">
+          <Info size={22} className="opacity-40" />
+          <p className="text-xs text-center">{t("newConnection.noGeneralSettings", { defaultValue: "No general settings available for this driver." })}</p>
+        </div>
+      ) : activeDriver?.capabilities?.file_based === true || activeDriver?.capabilities?.folder_based === true ? (
         <div className="flex flex-col gap-1">
           <label className="text-[10px] uppercase font-semibold tracking-wider text-muted">
             {activeDriver.capabilities.folder_based ? t("newConnection.folderPath") : t("newConnection.filePath")}
@@ -824,7 +831,7 @@ export const NewConnectionModal = ({
               {([
                 { id: "general", label: t("newConnection.general", { defaultValue: "General" }) },
                 ...(isMultiDb ? [{ id: "databases", label: t("newConnection.selectDatabases") }] : []),
-                { id: "ssh", label: "SSH" },
+                ...(isNetworkDriver ? [{ id: "ssh", label: "SSH" }] : []),
               ] as { id: "general" | "databases" | "ssh"; label: string }[]).map((tab) => (
                 <button
                   key={tab.id}
