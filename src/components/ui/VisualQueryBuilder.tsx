@@ -18,6 +18,7 @@ import { TableNodeComponent, type TableNodeData, type ColumnAggregation } from '
 import { JoinEdge } from './JoinEdge';
 import { useDatabase } from '../../hooks/useDatabase';
 import { invoke } from '@tauri-apps/api/core';
+import { dragState } from '../../utils/dragState';
 import { useEditor } from '../../hooks/useEditor';
 import { Filter, SortAsc, Group, Hash, X, Plus } from 'lucide-react';
 import { generateVisualQuerySQL, type WhereCondition, type OrderByClause } from '../../utils/visualQuery';
@@ -185,16 +186,9 @@ const VisualQueryBuilderContent = () => {
     [setEdges],
   );
 
-  const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
-  const onDrop = useCallback(
-    async (event: React.DragEvent) => {
-      event.preventDefault();
-
-      const tableName = event.dataTransfer.getData('application/reactflow');
+  const onPointerUp = useCallback(
+    async (event: React.PointerEvent) => {
+      const tableName = dragState.table;
       if (!tableName || !activeConnectionId) return;
 
       const position = screenToFlowPosition({
@@ -205,13 +199,13 @@ const VisualQueryBuilderContent = () => {
       try {
         const columns = await invoke<TableColumn[]>("get_columns", { connectionId: activeConnectionId, tableName, ...(activeSchema ? { schema: activeSchema } : {}) });
         const newNodeId = `${tableName}-${Date.now()}`;
-        
+
         const newNode: Node = {
           id: newNodeId,
           type: 'table',
           position,
-          data: { 
-            label: tableName, 
+          data: {
+            label: tableName,
             columns: columns.map(c => ({ name: c.name, type: c.data_type })),
             selectedColumns: {},
             columnAggregations: {},
@@ -246,15 +240,14 @@ const VisualQueryBuilderContent = () => {
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex' }}>
-      <div style={{ flex: 1, position: 'relative' }}>
+      <div style={{ flex: 1, position: 'relative' }} onPointerUp={onPointerUp}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          onDragOver={onDragOver}
-          onDrop={onDrop}
+          panActivationKeyCode={null}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { SidebarColumnItem } from "./SidebarColumnItem";
+import { dragState } from "../../../utils/dragState";
 import type { TableColumn, ForeignKey, Index } from "../../../types/schema";
 import type { ContextMenuData } from "../../../types/sidebar";
 
@@ -150,10 +151,27 @@ export const SidebarTableItem = ({
   return (
     <div className="flex flex-col">
       <div
-        draggable
-        onDragStart={(e) => {
-          e.dataTransfer.setData("application/reactflow", table.name);
-          e.dataTransfer.effectAllowed = "move";
+        onPointerDown={(e) => {
+          dragState.start(table.name);
+          const ghost = document.createElement('div');
+          ghost.id = '__drag-ghost__';
+          ghost.textContent = table.name;
+          ghost.style.cssText = 'position:fixed;pointer-events:none;background:#1e40af;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.5);';
+          ghost.style.left = e.clientX + 12 + 'px';
+          ghost.style.top = e.clientY + 12 + 'px';
+          document.body.appendChild(ghost);
+          const move = (ev: PointerEvent) => {
+            ghost.style.left = ev.clientX + 12 + 'px';
+            ghost.style.top = ev.clientY + 12 + 'px';
+          };
+          const up = () => {
+            ghost.remove();
+            dragState.clear();
+            document.removeEventListener('pointermove', move);
+            document.removeEventListener('pointerup', up);
+          };
+          document.addEventListener('pointermove', move);
+          document.addEventListener('pointerup', up);
         }}
         onClick={() => onTableClick(table.name)}
         onDoubleClick={() => onTableDoubleClick(table.name)}
