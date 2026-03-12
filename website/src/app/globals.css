@@ -1407,6 +1407,9 @@ pre {
 .sponsor-modal {
     width: 100%;
     max-width: 520px;
+    max-height: 90dvh;
+    display: flex;
+    flex-direction: column;
     background: #0d0f11;
     border: 1px solid var(--border-bright);
     border-radius: 16px;
@@ -1480,6 +1483,8 @@ pre {
 .sponsor-modal-body {
     padding: 2rem 1.5rem;
     min-height: 160px;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .sponsor-modal-content {
