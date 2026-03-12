@@ -82,18 +82,20 @@ export default function Image() {
             </span>
           </div>
 
-          <p
+          <div
             style={{
+              display: "flex",
+              flexDirection: "column",
               fontSize: 64,
               fontWeight: 700,
               color: "#e6edf3",
               lineHeight: 1.1,
-              margin: 0,
               letterSpacing: "-1.5px",
             }}
           >
-            Support open source<br />database tooling.
-          </p>
+            <span>Support open source</span>
+            <span>database tooling.</span>
+          </div>
 
           <p
             style={{
