@@ -2053,7 +2053,6 @@ pre {
 /* ── Tag Filter ──────────────────────────────────── */
 
 .tag-filter {
-    position: relative;
     margin-bottom: 1.5rem;
 }
 
@@ -2097,19 +2096,14 @@ pre {
 }
 
 .tag-filter-dropdown {
-    position: absolute;
-    top: calc(100% + 0.4rem);
-    left: 0;
-    z-index: 50;
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
+    margin-top: 0.5rem;
     padding: 0.65rem;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 0.75rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    max-width: min(28rem, calc(100vw - 2rem));
     animation: tagFilterIn 0.15s ease;
 }
 
@@ -2161,13 +2155,6 @@ pre {
     font-size: 0.85rem;
     color: var(--text-muted);
     margin-bottom: 1.25rem;
-}
-
-@media (max-width: 480px) {
-    .tag-filter-dropdown {
-        right: 0;
-        max-width: none;
-    }
 }
 
 .post-title {
