@@ -8,7 +8,7 @@ og:
   title: "Talk to Your Database:"
   accent: "AI Assistant."
   claim: "Generate SQL from plain English — locally or in the cloud."
-  image: "/img/screenshot-8.png"
+  image: "/img/tabularis-ai-assistant.png"
 ---
 
 # Talk to Your Database: AI Assistant Lands in v0.8.0
@@ -52,5 +52,5 @@ AI assistance is always optional and explicitly opt-in. If you prefer to write e
 
 ---
 
-![AI Settings in Tabularis v0.8.0](../img/screenshot-8.png)
+![AI Settings in Tabularis v0.8.0](../img/tabularis-ai-assistant.png)
 *AI Settings — configure your provider, model, and API key. Ollama users can leave the key blank.*

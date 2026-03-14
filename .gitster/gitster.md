@@ -1,118 +1,125 @@
 # Tabularis
 
-**Version:** 0.8.12
+**Version:** 0.9.9
 
 ## What is Tabularis?
 
-Tabularis is a lightweight database management tool designed to make working with databases simple and intuitive. It provides a modern interface to connect, explore, query, and manage your databases without complexity.
+Tabularis is a lightweight, developer-focused database management tool built with Tauri, Rust, and React. It provides a fast, native desktop experience for connecting, exploring, querying, and managing databases — with no cloud, no sign-up, and no telemetry. Extensible through a plugin system.
 
 ## Key Features
 
-### 🔌 Connection Management
+### 🔌 Multi-Database Support
 
-**Easily connect to your databases**
-- Connect to MySQL and MariaDB databases (PostgreSQL and SQLite support coming soon)
-- Save your connection profiles for quick access
-- Securely store passwords in your system keychain
-- Connect through SSH tunnels for remote databases
-- Manage multiple SSH connections from one place
+- Native drivers for **PostgreSQL** (multi-schema), **MySQL / MariaDB** (multi-database), and **SQLite**
+- Manage multiple connection profiles with secure local storage
+- Passwords and API keys stored in the OS keychain (Keychain Access, Windows Credential Manager, libsecret)
+- Read-only mode to protect production databases at the application layer
+- Connection groups for organising profiles in the sidebar
 
-### 🗂️ Database Explorer
+### 🔒 SSH Tunneling
 
-**Navigate and understand your database structure**
-- Browse through your tables, columns, and relationships in a visual tree
-- View interactive diagrams showing how your tables connect to each other
-- See table data, row counts, and schema details with a single click
-- Export entire databases or import them back
-- Duplicate or delete tables directly from the interface
-- Explore views and stored procedures with full metadata
+- Full SSH tunneling implementation in Rust with two automatic backends: **russh** (password auth) and **system SSH** (key-based, honours `~/.ssh/config`)
+- Dynamic ephemeral port assignment — no manual port configuration
+- Reusable SSH profiles shared across multiple database connections
+- Supports ProxyJump / multi-hop chains via `~/.ssh/config`
 
 ### ✍️ SQL Editor
 
-**Write and execute queries with ease**
-- Write SQL queries with smart suggestions and syntax highlighting
-- Work with multiple queries in separate tabs
-- Run entire scripts, selected portions, or single statements
-- Save frequently used queries for later
-- Each tab maintains its own database connection
+- Monaco-based editor with syntax highlighting, autocomplete, and multiple tabs
+- DataGrip-style execution: run selected text, run all, or run single statement
+- Saved queries panel for frequently used snippets
+- Each tab maintains its own independent connection context
 
 ### 🎨 Visual Query Builder
 
-**Build queries without writing SQL**
-- Drag and drop tables to build queries visually
-- Create relationships between tables by connecting them
-- Add filters, sorting, and limits using simple controls
-- Use aggregation functions like COUNT, SUM, and AVG
-- See the SQL code generated in real-time as you build
-- Perfect for learning SQL or building complex queries quickly
+- Drag-and-drop table canvas — connect columns to define JOINs visually
+- Add filters, sorting, limits, and aggregate functions (COUNT, SUM, AVG…) without writing SQL
+- Live SQL preview updates as you build
+- Export the generated query directly to the SQL Editor
 
 ### 📊 Data Grid
 
-**View and edit your data**
-- Browse query results in a fast, responsive table
-- Edit data directly in the grid or make bulk changes
-- Add new rows or delete existing ones
-- Select and copy multiple rows to clipboard
-- Export results to CSV or JSON files
-- Smart mode: read-only for aggregated data, editable for tables
+- High-performance virtualised grid for large result sets
+- Inline cell editing, row insertion and deletion
+- Multi-row copy to clipboard; one-click export to CSV or JSON
+- Smart read-only mode for aggregated queries
 
-### 🤖 AI Assistant (Optional)
+### 🗄️ Schema Management
 
-**Let AI help you write queries**
-- Describe what you want in plain English and get SQL queries
-- Get explanations of what complex queries do
-- Works with OpenAI, Anthropic (Claude), or other AI providers
-- Use Ollama for completely local AI (no data leaves your computer)
-- Compatible with various AI services including Groq and Perplexity
+- Inline editing of table and column properties directly from the sidebar
+- GUI wizards for creating tables, modifying columns, and managing indexes and foreign keys
+- Interactive **ER Diagram** with auto-layout — visualise relationships across the whole schema
 
-### 📝 Logging & Preferences
+### 🤖 AI Assistant (Experimental)
 
-**Stay in control**
-- View application logs in real-time to troubleshoot issues
-- Filter logs by severity level (DEBUG, INFO, WARN, ERROR)
-- Export logs for sharing or debugging
-- Your workspace is automatically saved: tabs, queries, and layouts are restored when you reconnect
-- Customize theme, language, font size, and page size
-- All settings stored locally on your computer
+- Generate SQL from natural language and get plain-English explanations of complex queries
+- Supports **OpenAI**, **Anthropic (Claude)**, **OpenRouter**, and **Ollama** for fully local inference
+- Context-aware: sends only the relevant schema to the AI, never raw data
 
-### 🌍 Multiple Languages
+### 🔌 MCP Server
 
-**Use Tabularis in your language**
-- Available in English, Italian, and Spanish
-- Automatic language detection or manual selection
-- More languages coming soon
+- Built-in **Model Context Protocol** server — expose database schemas and run queries directly from Claude, Cursor, Windsurf, or any MCP-compatible agent
+- One-click setup wizard generates ready-to-paste config for Claude Desktop and Claude Code
+
+### 📦 SQL Dump & Import
+
+- Export full or schema-level database dumps to `.sql` with table selection
+- Re-import `.sql` files with real-time progress tracking and cancellation support
+- Streaming write — works on large databases without memory pressure
+
+### 🪟 Split View
+
+- Open two or more connections side-by-side in resizable panes
+- Each pane has its own SQL editor, data grid, and independent connection state
+- Useful for comparing environments, migrating data, or cross-database work
+
+### 📈 Task Manager
+
+- Monitor Tabularis and plugin processes in real time
+- Per-process CPU, RAM, and disk usage; child process tree inspection
+- Force-kill or restart any plugin without leaving the app
+
+### 🎨 Themes
+
+- 10+ built-in themes including Dracula, Nord, Monokai, Solarized, and One Dark Pro
+- Syntax highlighting is auto-generated from the active UI theme
+- Switch themes instantly without restarting
+
+### 🌍 Internationalisation
+
+- Available in **English**, **Italian**, and **Spanish**
+- Automatic language detection with manual override in Settings
+
+### 🔄 Seamless Updates
+
+- Startup check against GitHub Releases API with one-click install
+- Package-manager-aware: shows a reminder for AUR, Snap, Homebrew, and winget installs instead of the built-in updater
+
+### 🧩 Plugin System
+
+- Install and manage third-party database drivers without rebuilding the app
+- Plugin registry with one-click install; plugins run in isolated processes
+- Built-in Task Manager for monitoring plugin resource usage
 
 ## Supported Databases
 
-- **MySQL** (Full support)
-- **MariaDB** (Full support)
-- **PostgreSQL** (In development)
-- **SQLite** (In development)
+| Database | Support |
+|---|---|
+| MySQL / MariaDB | Full (multi-database) |
+| PostgreSQL | Full (multi-schema) |
+| SQLite | Full |
+| Additional drivers | Via plugins (DuckDB, Redis, ClickHouse, and more) |
 
 ## Available On
 
-- Windows (64-bit)
-- macOS (Intel, available via Homebrew)
-- Linux (AppImage, AUR package for Arch Linux)
-
-## Updates
-
-Tabularis automatically checks for updates when you start the app. When a new version is available, you'll be notified and can install it with one click.
+- **macOS** — Universal Binary (Intel + Apple Silicon); Homebrew cask available
+- **Windows** — 64-bit installer (requires WebView2)
+- **Linux** — AppImage, `.deb`, `.rpm`, Snap, AUR (`tabularis-bin`)
 
 ## Links
 
-- **Download:** [GitHub Releases](https://github.com/debba/tabularis/releases)
 - **Website:** [tabularis.dev](https://tabularis.dev)
+- **Download:** [GitHub Releases](https://github.com/debba/tabularis/releases)
+- **Wiki:** [tabularis.dev/wiki](https://tabularis.dev/wiki)
 - **Community:** [Discord Server](https://discord.gg/YrZPHAwMSG)
 - **Source Code:** [GitHub Repository](https://github.com/debba/tabularis)
-
-## Coming Soon
-
-- Command palette for quick actions
-- JSON/JSONB editor and viewer
-- SQL formatting and beautification
-- Visual explain plans for query optimization
-- Data comparison and diff tools
-- Team collaboration features
-- Plugin system for extensions
-- Query history tracking

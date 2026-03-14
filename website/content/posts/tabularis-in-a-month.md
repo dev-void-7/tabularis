@@ -7,7 +7,7 @@ og:
   title: "One Month In —"
   accent: "Just Getting Started."
   claim: "270 stars, 1,000 downloads, a plugin system, and a community that makes it all worth it."
-  image: "/img/screenshot-1.png"
+  image: "/img/tabularis-connection-manager.png"
 ---
 
 # One Month In — and We're Just Getting Started

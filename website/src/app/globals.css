@@ -3609,6 +3609,237 @@ footer {
     border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
+/* =====================================================
+   CHANGELOG PAGE
+   ===================================================== */
+
+.cl-page {
+    padding-top: 2rem;
+}
+
+.cl-page-header {
+    margin-bottom: 2.5rem;
+}
+
+.cl-page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 0.5rem;
+}
+
+.cl-page-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.cl-page-subtitle a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.cl-page-subtitle a:hover {
+    text-decoration: underline;
+}
+
+.cl-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+}
+
+.cl-version-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    transition: border-color 0.15s ease;
+}
+
+.cl-version-card:hover {
+    border-color: var(--border-bright);
+}
+
+.cl-version-major {
+    border-left: 3px solid var(--accent);
+}
+
+.cl-version-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.cl-version-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.cl-version-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    font-family: var(--font-mono);
+}
+
+.cl-version-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.cl-major-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.cl-compare-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.cl-compare-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.cl-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cl-section {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.cl-section-badge {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    margin-top: 0.05rem;
+    white-space: nowrap;
+}
+
+.cl-badge-feat {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.cl-badge-fix {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.cl-badge-breaking {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--error);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.cl-badge-perf {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.cl-badge-other {
+    background: rgba(156, 163, 175, 0.1);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+.cl-entry-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1;
+}
+
+.cl-entry {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.cl-scope {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(59, 130, 246, 0.08);
+    padding: 0.05rem 0.35rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cl-entry-desc {
+    flex: 1;
+}
+
+.cl-commit-hash {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.05rem 0.3rem;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.cl-commit-hash:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+@media (max-width: 600px) {
+    .cl-section {
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .cl-version-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
 .cookie-policy-table {
     width: 100%;
     border-collapse: collapse;

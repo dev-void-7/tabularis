@@ -7,7 +7,7 @@ og:
   title: "Tabularis Goes NoSQL:"
   accent: "Redis Ships, More Coming."
   claim: "Two Redis drivers shipped by the community. DuckDB, MongoDB, and ClickHouse need your expertise."
-  image: "/img/screenshot-9.png"
+  image: "/img/tabularis-plugin-manager.png"
 ---
 
 # Tabularis Goes NoSQL: Redis Ships, MongoDB and ClickHouse Need You

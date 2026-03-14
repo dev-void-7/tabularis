@@ -1,13 +1,15 @@
 {
   "description": "A lightweight, developer-focused database management tool",
-  "tagline": "",
+  "tagline": "MySQL · PostgreSQL · SQLite — hackable with plugins",
   "website": "https://tabularis.dev",
   "coverImage": "https://github.com/debba/tabularis/blob/main/website/public/img/og.png?raw=true",
   "logoImage": "https://github.com/debba/tabularis/blob/main/website/public/img/logo.png?raw=true",
   "youtubeUrl": "https://youtu.be/bGAMfRuonKI",
   "screenshots": [
-    "https://github.com/debba/tabularis/blob/main/website/public/img/screenshot-2.png?raw=true",
-    "https://github.com/debba/tabularis/blob/main/website/public/img/screenshot-7.png?raw=true",
-    "https://github.com/debba/tabularis/blob/main/website/public/img/screenshot-8.png?raw=true"
+    "https://github.com/debba/tabularis/blob/main/website/public/img/tabularis-sql-editor-data-grid.png?raw=true",
+    "https://github.com/debba/tabularis/blob/main/website/public/img/tabularis-theme-management.png?raw=true",
+    "https://github.com/debba/tabularis/blob/main/website/public/img/tabularis-ai-assistant.png?raw=true",
+    "https://github.com/debba/tabularis/blob/main/website/public/img/tabularis-visual-query-builder.png?raw=true",
+    "https://github.com/debba/tabularis/blob/main/website/public/img/tabularis-mcp-server.png?raw=true"
   ]
 }

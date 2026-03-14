@@ -6,7 +6,7 @@ excerpt: "Work with multiple database connections simultaneously in a side-by-si
 
 # Split View
 
-![Split View](/img/screenshot-12.png)
+![Split View](/img/tabularis-split-view.png)
 
 **Split View** lets you open two or more database connections side by side in the same window. Each pane has its own SQL editor and data grid. The left sidebar is shared — clicking inside a pane makes that connection the active one in the explorer. This is useful for comparing query results across environments, migrating data, or working on two databases at the same time.
 

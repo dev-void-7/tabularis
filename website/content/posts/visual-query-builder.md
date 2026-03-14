@@ -8,7 +8,7 @@ og:
   title: "Point, Click,"
   accent: "Query."
   claim: "Drag tables, draw JOINs, and generate SQL automatically."
-  image: "/img/screenshot-5.png"
+  image: "/img/tabularis-visual-query-builder.png"
 ---
 
 # Point, Click, Query: The Visual Query Builder
@@ -47,5 +47,5 @@ The visual builder covers the common case well. Future iterations will handle su
 
 ---
 
-![SQL Editor and Data Grid in Tabularis v0.4.0](../img/screenshot-2.png)
+![SQL Editor and Data Grid in Tabularis v0.4.0](../img/tabularis-sql-editor-data-grid.png)
 _Multi-tab SQL Editor with Data Grid — each tab has its own isolated query, results, and state._

@@ -8,7 +8,7 @@ og:
   title: "Plugin Settings,"
   accent: "v0.9.7."
   claim: "Per-plugin interpreter settings, connection groups, credential cache, and a smarter plugin error flow."
-  image: "/img/screenshot-10.png"
+  image: "/img/tabularis-task-manager.png"
 ---
 
 # Plugin Settings, Connection Groups, and Credential Cache: v0.9.7

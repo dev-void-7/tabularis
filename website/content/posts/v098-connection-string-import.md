@@ -8,7 +8,7 @@ og:
   title: "Connection String Import,"
   accent: "v0.9.8."
   claim: "Import connections from a URL string, improved Windows compatibility, and new plugin capability flags."
-  image: "/img/screenshot-10.png"
+  image: "/img/tabularis-task-manager.png"
 ---
 
 # Connection String Import, Visual Query Builder Fix, and More: v0.9.8

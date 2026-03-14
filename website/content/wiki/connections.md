@@ -8,7 +8,7 @@ excerpt: "Learn how to manage your database connections securely with SSH tunnel
 
 Tabularis stores connection profiles as JSON (non-sensitive fields) and delegates all secrets to the OS keychain — Keychain Access on macOS, Windows Credential Manager on Windows, and libsecret (GNOME Keyring / KWallet) on Linux.
 
-![Connection Manager](/img/screenshot-1.png)
+![Connection Manager](/img/tabularis-connection-manager.png)
 
 ## Supported Drivers
 
@@ -64,7 +64,7 @@ Click **Test** before saving. Tabularis makes a real connection attempt and retu
 
 ## SSH Tunnel System
 
-![SSH Connections](/img/screenshot-15.png)
+![SSH Connections](/img/tabularis-ssh-tunneling.png)
 
 Tabularis has a full SSH tunneling implementation in Rust with two backends, selected automatically based on your auth method.
 

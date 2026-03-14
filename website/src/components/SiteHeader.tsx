@@ -38,6 +38,7 @@ export function SiteHeader({ crumbs = [] }: SiteHeaderProps) {
     { label: "Wiki", href: "/wiki" },
     { label: "Plugins", href: "/plugins" },
     { label: "Blog", href: "/blog" },
+    { label: "Changelog", href: "/changelog" },
     { label: "Download", href: "/#download" },
   ];
 

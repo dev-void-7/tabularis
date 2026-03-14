@@ -8,7 +8,7 @@ og:
   title: "Schema Management"
   accent: "Gets Serious."
   claim: "Create tables, modify columns, manage indexes — without writing DDL by hand."
-  image: "/img/screenshot-4.png"
+  image: "/img/tabularis-secure-connection-keychain.png"
 ---
 
 # Schema Management Gets Serious
@@ -49,5 +49,5 @@ Schema work used to mean context-switching to a terminal or opening another tool
 
 ---
 
-![Schema Creation Wizard in Tabularis v0.5.0](../img/screenshot-3.png)
+![Schema Creation Wizard in Tabularis v0.5.0](../img/tabularis-create-table-wizard.png)
 *Create Table Wizard — define columns, types, and constraints with a live SQL preview.*

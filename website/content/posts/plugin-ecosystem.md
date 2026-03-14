@@ -8,7 +8,7 @@ og:
   title: "Build Your Own Driver:"
   accent: "Plugin System."
   claim: "Supporting every database with a flexible, language-agnostic plugin architecture."
-  image: "/img/screenshot-9.png"
+  image: "/img/tabularis-plugin-manager.png"
 ---
 
 # Build Your Own Driver: Tabularis Gets a Plugin System
@@ -60,5 +60,5 @@ The database ecosystem is too large for any one team. Let's build it together.
 
 ---
 
-![Plugin Manager in Tabularis v0.9.0](../img/screenshot-9.png)
+![Plugin Manager in Tabularis v0.9.0](../img/tabularis-plugin-manager.png)
 *Plugin Manager — install and manage drivers from Settings without restarting the app.*

@@ -8,7 +8,7 @@ og:
   title: "Smarter Filters,"
   accent: "v0.9.6."
   claim: "Structured filter toolbar, ORDER BY autocomplete, close-tab shortcut, and a cleaner plugin install flow."
-  image: "/img/screenshot-9.png"
+  image: "/img/tabularis-plugin-manager.png"
 ---
 
 # Smarter Filters, Close Tab, and a Better Plugin Install: v0.9.6

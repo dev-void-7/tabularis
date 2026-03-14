@@ -8,7 +8,7 @@ og:
   title: "MCP Multi-Client Support,"
   accent: "v0.9.9."
   claim: "One-click MCP setup for Claude Desktop, Claude Code, Cursor, Windsurf, and Antigravity. Plus connection UI improvements and input validation."
-  image: "/img/screenshot-11.png"
+  image: "/img/tabularis-mcp-server.png"
 ---
 
 # MCP Multi-Client Support and Connection Improvements: v0.9.9
@@ -19,7 +19,7 @@ og:
 
 ## MCP Server Integration: One-Click Setup for Every AI Client
 
-<img src="/img/screenshot-11.png" alt="MCP Server Integration modal showing one-click install for Claude Desktop, Claude Code, Cursor, Windsurf, and Antigravity" style="width:100%;border-radius:8px;margin:1rem 0" />
+<img src="/img/tabularis-mcp-server.png" alt="MCP Server Integration modal showing one-click install for Claude Desktop, Claude Code, Cursor, Windsurf, and Antigravity" style="width:100%;border-radius:8px;margin:1rem 0" />
 
 The Model Context Protocol (MCP) allows AI assistants to connect directly to your local tools. Tabularis exposes an MCP server that lets any compatible AI client read your database schema and execute queries safely — entirely on your machine, with no data leaving your environment.
 

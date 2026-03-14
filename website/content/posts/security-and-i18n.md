@@ -8,7 +8,7 @@ og:
   title: "Passwords in the Keychain,"
   accent: "Three Languages."
   claim: "Secure credential storage and full i18n in English, Italian, and Spanish."
-  image: "/img/screenshot-6.png"
+  image: "/img/tabularis-schema-management-er-diagram.png"
 ---
 
 # Passwords in the Keychain, Queries in Three Languages
@@ -49,5 +49,5 @@ Neither keychain integration nor i18n is a shiny demo feature. They're infrastru
 
 ---
 
-![Connection Setup in Tabularis v0.6.0](../img/screenshot-4.png)
+![Connection Setup in Tabularis v0.6.0](../img/tabularis-secure-connection-keychain.png)
 *Connection Setup — passwords entered here are stored in the OS keychain, never in a config file.*

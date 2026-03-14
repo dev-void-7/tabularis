@@ -8,7 +8,7 @@ excerpt: "Use AI to generate SQL from natural language and explain complex queri
 
 Tabularis integrates a powerful, privacy-first AI assistant directly into the SQL Editor. It goes beyond simple autocomplete by deeply understanding your database structure to generate accurate, syntactically correct queries.
 
-![AI Assistant](/img/screenshot-8.png)
+![AI Assistant](/img/tabularis-ai-assistant.png)
 
 ## How Context Injection Works
 

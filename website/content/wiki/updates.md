@@ -6,7 +6,7 @@ excerpt: "Keep Tabularis up to date — automatic checks on startup, manual chec
 
 # Updates
 
-![Seamless Updates](/img/screenshot-14.png)
+![Seamless Updates](/img/tabularis-automatic-updates.png)
 
 Tabularis can notify you when a new version is available and, depending on how you installed it, update itself automatically or guide you to do it manually.
 

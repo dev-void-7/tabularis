@@ -8,7 +8,7 @@ excerpt: "Modify your database schema without writing DDL. Create tables, edit c
 
 While knowing how to write `ALTER TABLE` statements is essential, Tabularis provides visual tools to manage your schema quickly, safely, and comprehensively.
 
-![Schema Management & ER Diagram](/img/screenshot-6.png)
+![Schema Management & ER Diagram](/img/tabularis-schema-management-er-diagram.png)
 
 ## Visual Schema Editor
 
