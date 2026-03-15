@@ -246,6 +246,98 @@ elif method == "initialize":
 
 ---
 
+## 3b. UI Extensions (Phase 2)
+
+Starting with Tabularis v0.9.15, plugins can inject custom React components into the host UI through a **slot-based extension system**. This is entirely optional — plugins without UI extensions continue to work as before.
+
+### Declaring UI Extensions
+
+Add an optional `ui_extensions` array to your `manifest.json`:
+
+```json
+{
+  "id": "my-plugin",
+  "name": "My Plugin",
+  "version": "1.0.0",
+  "ui_extensions": [
+    {
+      "slot": "row-editor-sidebar.field.after",
+      "module": "./ui/FieldPreview.tsx",
+      "order": 50
+    },
+    {
+      "slot": "data-grid.toolbar.actions",
+      "module": "./ui/ExportButton.tsx"
+    },
+    {
+      "slot": "settings.plugin.actions",
+      "module": "./ui/DiagnosticsButton.tsx"
+    }
+  ]
+}
+```
+
+### Available Slots
+
+| Slot Name | Location | Use Cases |
+|-----------|----------|-----------|
+| `row-edit-modal.field.after` | After each field in New Row modal | Validation hints, previews |
+| `row-edit-modal.footer.before` | Before Save/Cancel buttons | Batch actions, templates |
+| `row-editor-sidebar.field.after` | After each field in Row Editor sidebar | Field-level previews, lookups |
+| `row-editor-sidebar.header.actions` | Sidebar header area | "Copy as JSON", audit links |
+| `data-grid.toolbar.actions` | Table toolbar (after LIMIT) | Export, analysis buttons |
+| `data-grid.context-menu.items` | Right-click menu on grid rows | Row-level actions |
+| `sidebar.footer.actions` | Main sidebar footer | Status indicators, quick actions |
+| `settings.plugin.actions` | Per-plugin actions in Settings | Diagnostics, config shortcuts |
+
+### Writing a Slot Component
+
+Each slot component is a standard React component that receives `context` (slot-specific data) and `pluginId` as props:
+
+```tsx
+// ui/FieldPreview.tsx
+import type { SlotComponentProps } from "@tabularis/plugin-api";
+
+export default function FieldPreview({ context, pluginId }: SlotComponentProps) {
+  if (context.columnName !== "geometry") return null;
+
+  return (
+    <div style={{ padding: "4px 0", fontSize: "11px", color: "#888" }}>
+      Geometry preview for {String(context.rowData?.[context.columnName])}
+    </div>
+  );
+}
+```
+
+### Plugin API Hooks
+
+Slot components can import these hooks from `@tabularis/plugin-api`:
+
+| Hook | Purpose |
+|------|---------|
+| `usePluginQuery()` | Execute read-only queries on the active connection |
+| `usePluginConnection()` | Access connection metadata (ID, driver, schema) |
+| `usePluginToast()` | Show info/error/warning dialogs |
+| `usePluginSetting(pluginId)` | Read/write plugin settings |
+| `usePluginTheme()` | Access theme info (dark/light, colors) |
+
+### Security Restrictions
+
+Plugin components **must not**:
+- Import from `@tauri-apps/*` directly
+- Access `window.__TAURI__` or invoke Tauri commands
+- Manipulate the DOM outside their subtree
+
+All host interaction goes through `@tabularis/plugin-api`.
+
+### Error Isolation
+
+Each contribution is wrapped in a `SlotErrorBoundary`. If your component throws, a small error badge is shown instead — other plugins and the host continue working normally.
+
+For the full specification, see [`plugin-ui-extensions-spec.md`](../website/public/docs/plugin-ui-extensions-spec.md).
+
+---
+
 ## 4. Implementing the JSON-RPC Interface
 
 Your plugin must run an event loop that:

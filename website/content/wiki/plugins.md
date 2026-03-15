@@ -405,6 +405,79 @@ By default, Tabularis fetches the plugin list from the official registry. You ca
 
 The custom registry must expose a JSON file that follows the same schema as the [official registry](https://github.com/debba/tabularis/blob/main/plugins/registry.json). When this key is set, both the plugin browser and the install command will use your URL instead of the default one.
 
+## UI Extensions (Phase 2)
+
+Starting with v0.9.15, plugins can inject custom React components into the Tabularis UI through a **slot-based extension system**. This allows plugins to add buttons, fields, previews, and menu items directly into the interface without modifying host code.
+
+### How It Works
+
+The system has three layers:
+
+1. **SlotAnchor** — Host components placed at predefined insertion points that determine WHERE extensions render.
+2. **PluginSlotRegistry** — A React context that stores registered contributions and determines WHAT gets rendered.
+3. **Plugin Modules** — JavaScript/TypeScript code that registers components during plugin activation.
+
+### Available Slots
+
+Eight insertion points are available:
+
+| Slot Name | Location | Renders Per |
+|-----------|----------|-------------|
+| `row-edit-modal.field.after` | After each field in New Row modal | Each column |
+| `row-edit-modal.footer.before` | Before Save/Cancel buttons | Once per modal |
+| `row-editor-sidebar.field.after` | After each field in Row Editor sidebar | Each column |
+| `row-editor-sidebar.header.actions` | Sidebar header action area | Once per sidebar |
+| `data-grid.toolbar.actions` | Table toolbar (after LIMIT) | Once per table view |
+| `data-grid.context-menu.items` | Right-click context menu on grid rows | Each menu open |
+| `sidebar.footer.actions` | Main sidebar footer area | Once (global) |
+| `settings.plugin.actions` | Per-plugin actions in Settings | Each installed plugin |
+
+### Declaring UI Extensions in the Manifest
+
+Add an optional `ui_extensions` array to your `manifest.json`:
+
+```json
+{
+  "id": "postgis-toolkit",
+  "name": "PostGIS Toolkit",
+  "version": "1.0.0",
+  "ui_extensions": [
+    {
+      "slot": "row-editor-sidebar.field.after",
+      "module": "./ui/GeometryPreview.tsx",
+      "order": 50
+    },
+    {
+      "slot": "data-grid.toolbar.actions",
+      "module": "./ui/MapViewButton.tsx",
+      "order": 80
+    }
+  ]
+}
+```
+
+### Plugin API
+
+Slot components can import hooks from `@tabularis/plugin-api`:
+
+| Hook | Purpose |
+|------|---------|
+| `usePluginQuery()` | Execute read-only queries on the active connection |
+| `usePluginConnection()` | Access active connection metadata (ID, driver, schema) |
+| `usePluginToast()` | Show info/error/warning notification dialogs |
+| `usePluginSetting(pluginId)` | Read and write plugin-specific settings |
+| `usePluginTheme()` | Access theme information (dark/light, colors) |
+
+### Error Isolation
+
+Each slot contribution is wrapped in a `SlotErrorBoundary`. A crashing plugin component displays a compact error message without affecting the host application or other plugins.
+
+### Backward Compatibility
+
+The `ui_extensions` field is optional. Plugins without it continue to work identically. The slot anchors render nothing when no contributions are registered — zero overhead.
+
+For the full specification, see the [Plugin UI Extensions Spec](/docs/plugin-ui-extensions-spec.md).
+
 ## Publishing to the Registry
 
 To make your plugin available in the official in-app plugin browser:
