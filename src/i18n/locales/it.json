@@ -767,6 +767,12 @@
     "wktPlaceholder": "POINT(30 40)",
     "toggleTooltip": "Funzioni SQL"
   },
+  "jsonInput": {
+    "placeholder": "Inserisci JSON...",
+    "format": "Formatta",
+    "valid": "JSON valido",
+    "invalid": "JSON non valido"
+  },
   "rowEditor": {
     "title": "Modifica Riga",
     "subtitle": "Riga #{{row}}",

@@ -130,6 +130,27 @@ pub fn extract_value(row: &sqlx::mysql::MySqlRow, index: usize) -> serde_json::V
         }
     }
 
+    // For JSON type, decode as serde_json::Value (requires sqlx "json" feature)
+    if col_type == "JSON" {
+        if let Ok(v) = row.try_get::<serde_json::Value, _>(index) {
+            return v;
+        }
+        // Fallback: try raw bytes and parse as JSON string
+        if let Ok(raw_value) = row.try_get_raw(index) {
+            use sqlx::ValueRef;
+            if !raw_value.is_null() {
+                if let Ok(bytes) = <Vec<u8> as sqlx::Decode<sqlx::MySql>>::decode(raw_value) {
+                    if let Ok(s) = String::from_utf8(bytes) {
+                        if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&s) {
+                            return parsed;
+                        }
+                        return serde_json::Value::String(s);
+                    }
+                }
+            }
+        }
+    }
+
     // For GEOMETRY types (GEOMETRY, POINT, LINESTRING, POLYGON, etc.), extract as WKB binary and encode
     if col_type == "GEOMETRY"
         || col_type.contains("POINT")

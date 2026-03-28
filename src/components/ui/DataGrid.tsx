@@ -43,6 +43,7 @@ import {
 } from "../../utils/dataGrid";
 import { isGeometricType, formatGeometricValue } from "../../utils/geometry";
 import { isBlobColumn, isBlobWireFormat } from "../../utils/blob";
+import { isJsonColumn } from "../../utils/json";
 import { getDateInputMode } from "../../utils/dateInput";
 import { GeometryInput } from "./GeometryInput";
 import { DateInput } from "./DateInput";
@@ -293,6 +294,16 @@ export const DataGrid = React.memo(
         (isBlobColumn(colType, columnLengthMap?.get(colName)) ||
           isBlobWireFormat(value))
       ) {
+        setSidebarRowData({
+          data: buildRowDataWithPending(mergedRow.rowData, mergedRow.type === "insertion"),
+          rowIndex,
+          focusField: colName,
+        });
+        setSidebarOpen(true);
+        return;
+      }
+
+      if (colType && isJsonColumn(colType)) {
         setSidebarRowData({
           data: buildRowDataWithPending(mergedRow.rowData, mergedRow.type === "insertion"),
           rowIndex,

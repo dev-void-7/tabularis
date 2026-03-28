@@ -767,6 +767,12 @@
     "wktPlaceholder": "POINT(30 40)",
     "toggleTooltip": "SQL 函数"
   },
+  "jsonInput": {
+    "placeholder": "输入 JSON...",
+    "format": "格式化",
+    "valid": "JSON 格式正确",
+    "invalid": "JSON 格式错误"
+  },
   "rowEditor": {
     "title": "编辑行",
     "subtitle": "行 #{{row}}",

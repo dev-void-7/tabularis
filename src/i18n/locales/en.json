@@ -767,6 +767,12 @@
     "wktPlaceholder": "POINT(30 40)",
     "toggleTooltip": "SQL Functions"
   },
+  "jsonInput": {
+    "placeholder": "Enter JSON...",
+    "format": "Format",
+    "valid": "Valid JSON",
+    "invalid": "Invalid JSON"
+  },
   "rowEditor": {
     "title": "Edit Row",
     "subtitle": "Row #{{row}}",
