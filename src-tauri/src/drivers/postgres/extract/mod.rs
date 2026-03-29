@@ -71,9 +71,6 @@ impl<'a> FromSql<'a> for Extractor {
     }
 }
 
-// #[inline]
-// fn extract_array_into(of: &Type, buf: &mut &[u8], vec: &mut Vec<JsonValue>) {}
-
 // TODO: support the following types
 
 // Transaction Identifier: A 32-bit integer assigned to every transaction.

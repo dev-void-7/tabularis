@@ -5,7 +5,6 @@ use crate::drivers::postgres::extract::common::advance_buf;
 
 #[inline]
 pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> JsonValue {
-    log::info!("extract buf: {:?}", buf);
     if buf.len() < 4 {
         return JsonValue::Null;
     };
