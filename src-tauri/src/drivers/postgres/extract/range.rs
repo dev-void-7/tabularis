@@ -22,7 +22,7 @@ pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> JsonValue {
 
     if flag & (1 << 3) == 0 {
         if let Err(_) = try_extract_bound_into(ty, buf, &mut range) {
-            range.push_str("Null, Null");
+            range.push_str("null, null");
             range.push(get_upper_bound(flag));
             return JsonValue::String(range);
         };
@@ -32,7 +32,7 @@ pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> JsonValue {
 
     if flag & (1 << 4) == 0 {
         if let Err(_) = try_extract_bound_into(ty, buf, &mut range) {
-            range.push_str("Null");
+            range.push_str("null");
         };
     }
 
@@ -62,7 +62,8 @@ fn try_extract_bound_into(ty: &Type, buf: &mut &[u8], range: &mut String) -> Res
         Kind::Simple => super::simple::extract_or_null(ty, value_buf),
         Kind::Enum(_variants) => super::r#enum::extract_or_null(&mut value_buf),
         Kind::Array(ty) => super::array::extract_or_null(ty, &mut value_buf),
-        Kind::Range(_) => JsonValue::Null, // impossible
+        Kind::Range(_) => JsonValue::Null,      // impossible
+        Kind::Multirange(_) => JsonValue::Null, // not allowed by postgres
         Kind::Domain(ty) => super::simple::extract_or_null(ty, value_buf),
         Kind::Composite(fields) => super::composite::extract_or_null(fields, &mut value_buf),
         _ => JsonValue::Null, // unsupported
@@ -250,7 +251,7 @@ mod tests {
         let mut slice = &buf[..];
         assert_eq!(
             extract_or_null(&Type::INT4, &mut slice),
-            JsonValue::String("[1, Null)".to_string())
+            JsonValue::String("[1, null)".to_string())
         );
     }
 
@@ -261,7 +262,7 @@ mod tests {
         let mut slice = &buf[..];
         assert_eq!(
             extract_or_null(&Type::INT4, &mut slice),
-            JsonValue::String("[Null, Null)".to_string())
+            JsonValue::String("[null, null)".to_string())
         );
     }
 }
