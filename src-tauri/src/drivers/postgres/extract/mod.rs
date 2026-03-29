@@ -40,14 +40,14 @@ impl<'a> FromSql<'a> for Extractor {
         extractor.value = match ty.kind() {
             Kind::Simple => simple::extract_or_null(ty, raw),
             Kind::Enum(_variants) => r#enum::extract_or_null(raw), // we don't need _variants
-            Kind::Domain(ty) => simple::extract_or_null(ty, raw),
             Kind::Array(ty) => {
                 let mut buf = raw;
-                array::extract_or_null(ty, &mut buf).unwrap_or_default()
+                array::extract_or_null(ty, &mut buf)
             }
+            Kind::Domain(ty) => simple::extract_or_null(ty, raw),
             Kind::Composite(fields) => {
                 let mut buf = raw;
-                composite::extract_or_null(fields, &mut buf).unwrap_or_default()
+                composite::extract_or_null(fields, &mut buf)
             }
             _ => JsonValue::Null, // unsupported
         };

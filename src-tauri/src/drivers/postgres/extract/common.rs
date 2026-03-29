@@ -1,6 +1,7 @@
 #[inline]
 pub fn advance_buf(buf: &mut &[u8], n: usize) -> Result<(), ()> {
     if buf.len() < n {
+        log::error!("Buffer too short: {} < {}", buf.len(), n);
         return Err(());
     }
     *buf = &buf[n..];

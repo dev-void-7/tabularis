@@ -3,15 +3,15 @@ use tokio_postgres::types::{Kind, Type};
 
 use super::common::split_at_value_len;
 
-pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> Result<JsonValue, ()> {
+pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> JsonValue {
     // array must be at least 12 bytes (header) except if it is `NULL`
     if buf.len() == 0 {
-        return Ok(JsonValue::Null);
+        return JsonValue::Null;
     };
 
     if buf.len() < 12 {
         log::error!("array buffer too short: {}", buf.len());
-        return Err(());
+        return JsonValue::Null;
     };
 
     let dimensions = i32::from_be_bytes(buf[..4].try_into().unwrap());
@@ -19,13 +19,13 @@ pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> Result<JsonValue, ()> {
     // i don't think this is possible but just in case
     if dimensions < 1 {
         log::error!("invalid number of dimensions: {}", dimensions);
-        return Err(());
+        return JsonValue::Null;
     };
 
     // max dimensions is 64 and just for safety
     if dimensions > 64 {
         log::error!("too many dimensions: {}", dimensions);
-        return Err(());
+        return JsonValue::Null;
     }
 
     // ignore `has nulls` 4 bytes
@@ -37,7 +37,7 @@ pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> Result<JsonValue, ()> {
     // each dimension must have at least 8 bytes info
     if buf.len() < 8 * dimensions {
         log::error!("array buffer too short: {}", buf.len());
-        return Err(());
+        return JsonValue::Null;
     };
 
     let mut total_vecs: usize = 1;
@@ -49,7 +49,7 @@ pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> Result<JsonValue, ()> {
         // i don't think this is possible but just in case
         if length < 0 {
             log::error!("invalid length: {}", length);
-            return Err(());
+            return JsonValue::Null;
         };
 
         let length = length as usize;
@@ -66,7 +66,7 @@ pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> Result<JsonValue, ()> {
             Some(v) => v,
             None => {
                 log::error!("overflow: total_vecs={} length={}", total_vecs, length);
-                return Err(());
+                return JsonValue::Null;
             }
         };
 
@@ -78,7 +78,7 @@ pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> Result<JsonValue, ()> {
                     total_vecs,
                     all_vecs_in_this_lvl
                 );
-                return Err(());
+                return JsonValue::Null;
             }
         };
     }
@@ -86,17 +86,19 @@ pub fn extract_or_null(ty: &Type, buf: &mut &[u8]) -> Result<JsonValue, ()> {
     // SAFETY: i think this number should be discussed
     if total_vecs > 1024 {
         log::error!("too many vectors: total_vecs={}", total_vecs);
-        return Err(());
+        return JsonValue::Null;
     };
 
     let mut vec = Vec::with_capacity(arr_lengths[0]);
 
-    extract_recursively_into(&mut vec, &arr_lengths, 1, &ty, buf)?;
+    let _ = extract_recursively_or_fill_nulls_into(&mut vec, &arr_lengths, 1, &ty, buf);
 
-    Ok(JsonValue::Array(vec))
+    JsonValue::Array(vec)
 }
 
-fn extract_recursively_into(
+/// the idea of returning a `Result` is to stop extracting further if error occurs
+/// because it is most likely to fail anyway
+fn extract_recursively_or_fill_nulls_into(
     vec: &mut Vec<JsonValue>,
     arr_lengths: &[usize],
     depth: usize,
@@ -105,15 +107,32 @@ fn extract_recursively_into(
 ) -> Result<(), ()> {
     match depth == arr_lengths.len() {
         true => {
-            for _ in 0..arr_lengths[depth - 1] {
-                vec.push(extract_elem(ty, buf)?);
+            let len = arr_lengths[depth - 1];
+            for i in 0..len {
+                match try_extract_elem(ty, buf) {
+                    Ok(value) => vec.push(value),
+                    Err(_) => {
+                        fill_nulls(vec, len - i);
+                        return Err(());
+                    }
+                }
             }
         }
 
         false => {
-            for _ in 0..arr_lengths[depth - 1] {
-                let mut sub_vec = Vec::with_capacity(arr_lengths[depth - 1]);
-                extract_recursively_into(&mut sub_vec, arr_lengths, depth + 1, ty, buf)?;
+            let len = arr_lengths[depth - 1];
+            for _ in 0..len {
+                let mut sub_vec = Vec::with_capacity(len);
+                if let Err(_) = extract_recursively_or_fill_nulls_into(
+                    &mut sub_vec,
+                    arr_lengths,
+                    depth + 1,
+                    ty,
+                    buf,
+                ) {
+                    fill_nulls(vec, len - 1);
+                    return Err(());
+                }
                 vec.push(JsonValue::Array(sub_vec));
             }
         }
@@ -122,18 +141,25 @@ fn extract_recursively_into(
     Ok(())
 }
 
+#[inline(always)]
+fn fill_nulls(vec: &mut Vec<JsonValue>, count: usize) {
+    for _ in 0..count {
+        vec.push(JsonValue::Null);
+    }
+}
+
 #[inline]
-fn extract_elem(ty: &Type, buf: &mut &[u8]) -> Result<JsonValue, ()> {
+fn try_extract_elem(ty: &Type, buf: &mut &[u8]) -> Result<JsonValue, ()> {
     let mut value_buf = split_at_value_len(buf)?;
 
-    match ty.kind() {
-        Kind::Simple => Ok(super::simple::extract_or_null(ty, value_buf)),
-        Kind::Enum(_variants) => Ok(super::r#enum::extract_or_null(value_buf)),
-        Kind::Domain(inner) => Ok(super::simple::extract_or_null(inner, value_buf)),
-        Kind::Array(_) => Ok(JsonValue::Null), // impossible case
+    Ok(match ty.kind() {
+        Kind::Simple => super::simple::extract_or_null(ty, value_buf),
+        Kind::Enum(_variants) => super::r#enum::extract_or_null(value_buf),
+        Kind::Array(_) => JsonValue::Null, // impossible case
+        Kind::Domain(inner) => super::simple::extract_or_null(inner, value_buf),
         Kind::Composite(fields) => super::composite::extract_or_null(fields, &mut value_buf),
-        _ => Ok(JsonValue::Null),
-    }
+        _ => JsonValue::Null,
+    })
 }
 
 mod tests {
@@ -160,11 +186,11 @@ mod tests {
         let json = extract_or_null(&Type::INT4, &mut buf);
         assert_eq!(
             json,
-            Ok(JsonValue::Array(vec![
+            JsonValue::Array(vec![
                 JsonValue::Number(1.into()),
                 JsonValue::Number(2.into()),
                 JsonValue::Number(3.into())
-            ]))
+            ])
         );
     }
 
@@ -189,7 +215,7 @@ mod tests {
         let json = extract_or_null(&Type::INT4, &mut buf);
         assert_eq!(
             json,
-            Ok(JsonValue::Array(vec![
+            JsonValue::Array(vec![
                 JsonValue::Array(vec![
                     JsonValue::Number(1.into()),
                     JsonValue::Number(2.into()),
@@ -198,7 +224,7 @@ mod tests {
                     JsonValue::Number(3.into()),
                     JsonValue::Number(4.into()),
                 ]),
-            ]))
+            ])
         );
     }
 
@@ -229,7 +255,7 @@ mod tests {
         let json = extract_or_null(&Type::INT4, &mut buf);
         assert_eq!(
             json,
-            Ok(JsonValue::Array(vec![
+            JsonValue::Array(vec![
                 JsonValue::Array(vec![
                     JsonValue::Array(vec![
                         JsonValue::Number(1.into()),
@@ -250,7 +276,7 @@ mod tests {
                         JsonValue::Number(4.into()),
                     ]),
                 ])
-            ]))
+            ])
         );
     }
 }

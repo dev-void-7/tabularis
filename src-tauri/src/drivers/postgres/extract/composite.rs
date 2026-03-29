@@ -1,49 +1,72 @@
 use serde_json::{Map, Value as JsonValue};
-use tokio_postgres::types::{self as pg_types, Field, Kind};
+use tokio_postgres::types::{Field, Kind};
 
 use super::common::split_at_value_len;
 
 #[inline]
-pub fn extract_or_null(fields: &Vec<Field>, buf: &mut &[u8]) -> Result<JsonValue, ()> {
+pub fn extract_or_null(fields: &Vec<Field>, buf: &mut &[u8]) -> JsonValue {
     if buf.len() == 0 {
-        log::error!("received empty buffer");
-        return Err(());
+        // receiving an empty buffer is an error but it indicates a null value
+        // log::error!("received empty buffer");
+        return JsonValue::Null;
     };
 
     let mut map = serde_json::Map::with_capacity(fields.len());
-    extract_into(fields, buf, &mut map)?;
-    Ok(JsonValue::Object(map))
+    // ignore the error and return only the successfully extracted elements
+    // and fill the map with nulls for any remaining fields
+    extract_or_fill_nulls_into(fields, buf, &mut map);
+    JsonValue::Object(map)
 }
 
-fn extract_into(
+fn extract_or_fill_nulls_into(
     fields: &Vec<Field>,
     buf: &mut &[u8],
     map: &mut Map<String, JsonValue>,
-) -> Result<(), ()> {
-    // this step is important because `read_be_i32` moves 4 bytes forward
-    // also, i think we can ignore the composite length and just read the fields
-    if let Err(e) = pg_types::private::read_be_i32(buf) {
-        log::error!("Failed to read composite length: {:?}", e);
-        // if reading the composite length fails (which happens only if the buffer is less than 4 bytes),
-        // we can't proceed with extracting the composite fields, so we return early
-        return Err(());
+) {
+    // skip the composite length we already have fields
+    if let Err(_) = super::common::advance_buf(buf, 4) {
+        fill_nulls(fields, map);
+        return;
     };
 
-    for field in fields {
+    let mut field;
+    for i in 0..fields.len() {
+        field = &fields[i];
+
         // skip the field type OID
-        super::common::advance_buf(buf, 4)?;
+        if let Err(_) = super::common::advance_buf(buf, 4) {
+            fill_nulls(fields, map);
+            return;
+        }
 
-        map.insert(
-            field.name().to_string(),
-            extract_field_or_null_into(field, buf)?,
-        );
+        match try_extract_field(field, buf) {
+            Ok(value) => {
+                map.insert(field.name().to_string(), value);
+            }
+            Err(_) => {
+                map.insert(field.name().to_string(), JsonValue::Null);
+
+                if i + 1 < fields.len() {
+                    // insert the reset of the fields with null values
+                    fill_nulls(&fields[i + 1..], map);
+                    return;
+                }
+            }
+        }
     }
+}
 
-    Ok(())
+#[inline(always)]
+fn fill_nulls(fields: &[Field], map: &mut Map<String, JsonValue>) {
+    fields.iter().for_each(|f| {
+        map.insert(f.name().to_string(), JsonValue::Null);
+    });
 }
 
 #[inline]
-fn extract_field_or_null_into(field: &Field, buf: &mut &[u8]) -> Result<JsonValue, ()> {
+/// the idea of returning a `Result` is to stop extracting further if error occurs
+/// because it is most likely to fail anyway
+fn try_extract_field(field: &Field, buf: &mut &[u8]) -> Result<JsonValue, ()> {
     let mut value_buf = split_at_value_len(buf)?;
 
     let ty = field.type_();
@@ -51,13 +74,9 @@ fn extract_field_or_null_into(field: &Field, buf: &mut &[u8]) -> Result<JsonValu
     Ok(match ty.kind() {
         Kind::Simple => super::simple::extract_or_null(ty, value_buf),
         Kind::Enum(_variants) => super::r#enum::extract_or_null(value_buf),
+        Kind::Array(of) => super::array::extract_or_null(of, &mut value_buf),
         Kind::Domain(ty) => super::simple::extract_or_null(ty, value_buf),
-        Kind::Composite(fields) => {
-            let mut map = Map::with_capacity(fields.len());
-            extract_into(fields, &mut value_buf, &mut map)?;
-            JsonValue::from(map)
-        }
-        Kind::Array(of) => super::array::extract_or_null(of, &mut value_buf)?,
+        Kind::Composite(fields) => extract_or_null(fields, buf),
         _ => JsonValue::Null,
     })
 }
