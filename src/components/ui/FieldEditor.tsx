@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Sparkles, Ban, FileDigit } from "lucide-react";
 import { GeometryInput } from "./GeometryInput";
@@ -35,7 +35,7 @@ export interface FieldEditorProps {
  * Reusable field editor component
  * Automatically selects the appropriate input type based on field type
  */
-export const FieldEditor: React.FC<FieldEditorProps> = ({
+export const FieldEditor = ({
   name,
   type,
   characterMaximumLength,
@@ -52,7 +52,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = ({
   pkCol,
   pkVal,
   schema,
-}) => {
+}: FieldEditorProps) => {
   const { t } = useTranslation();
   const isGeometric = type && isGeometricType(type);
   const isBlob = type && isBlobColumn(type, characterMaximumLength);

@@ -18,6 +18,7 @@ interface SidebarColumnItemProps {
   onEdit: (column: TableColumn) => void;
   isView?: boolean;
   schema?: string;
+  canManage?: boolean;
 }
 
 export const SidebarColumnItem = ({
@@ -29,6 +30,7 @@ export const SidebarColumnItem = ({
   onEdit,
   isView = false,
   schema,
+  canManage,
 }: SidebarColumnItemProps) => {
   const { t } = useTranslation();
   const { showAlert } = useAlert();
@@ -79,8 +81,8 @@ export const SidebarColumnItem = ({
     <>
       <div
         className="flex items-center gap-2 px-3 py-1 text-xs text-secondary hover:bg-surface-secondary hover:text-primary cursor-pointer group font-mono"
-        onContextMenu={!isView ? handleContextMenu : undefined}
-        onDoubleClick={!isView ? () => onEdit(column) : undefined}
+        onContextMenu={!isView && canManage !== false ? handleContextMenu : undefined}
+        onDoubleClick={!isView && canManage !== false ? () => onEdit(column) : undefined}
       >
         {column.is_pk ? (
           <Key size={12} className="text-yellow-500 shrink-0" />
@@ -99,7 +101,7 @@ export const SidebarColumnItem = ({
           {column.data_type}
         </span>
       </div>
-      {contextMenu && !isView && (
+      {contextMenu && !isView && canManage !== false && (
         <ContextMenu
           x={contextMenu.x}
           y={contextMenu.y}

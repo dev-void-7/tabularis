@@ -4,6 +4,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { MainLayout } from "./components/layout/MainLayout";
 import { ConnectionLayoutProvider } from "./contexts/ConnectionLayoutProvider";
 import { KeybindingsProvider } from "./contexts/KeybindingsProvider";
+import { PluginSlotProvider } from "./contexts/PluginSlotProvider";
+import { PluginModalProvider } from "./contexts/PluginModalProvider";
 import { AlertProvider } from "./contexts/AlertProvider";
 import { Connections } from "./pages/Connections";
 import { Editor } from "./pages/Editor";
@@ -58,22 +60,32 @@ export function App() {
   return (
     <>
       <AlertProvider>
-      <BrowserRouter>
-        <KeybindingsProvider>
-        <ConnectionLayoutProvider>
-          <Routes>
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Navigate to="/connections" replace />} />
-              <Route path="connections" element={<Connections />} />
-              <Route path="editor" element={<Editor />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
-            <Route path="/schema-diagram" element={<SchemaDiagramPage />} />
-            <Route path="/task-manager" element={<TaskManagerPage />} />
-          </Routes>
-        </ConnectionLayoutProvider>
-        </KeybindingsProvider>
-      </BrowserRouter>
+        <BrowserRouter>
+          <KeybindingsProvider>
+            <PluginSlotProvider>
+              <PluginModalProvider>
+                <ConnectionLayoutProvider>
+                  <Routes>
+                    <Route path="/" element={<MainLayout />}>
+                      <Route
+                        index
+                        element={<Navigate to="/connections" replace />}
+                      />
+                      <Route path="connections" element={<Connections />} />
+                      <Route path="editor" element={<Editor />} />
+                      <Route path="settings" element={<Settings />} />
+                    </Route>
+                    <Route
+                      path="/schema-diagram"
+                      element={<SchemaDiagramPage />}
+                    />
+                    <Route path="/task-manager" element={<TaskManagerPage />} />
+                  </Routes>
+                </ConnectionLayoutProvider>
+              </PluginModalProvider>
+            </PluginSlotProvider>
+          </KeybindingsProvider>
+        </BrowserRouter>
       </AlertProvider>
 
       <UpdateNotificationModal
@@ -93,4 +105,3 @@ export function App() {
     </>
   );
 }
-
