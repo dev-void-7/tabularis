@@ -3,6 +3,8 @@ use std::net::IpAddr;
 use serde_json::{Number as JsonNumber, Value as JsonValue};
 use tokio_postgres::types::{FromSql, Type};
 
+use crate::drivers::common::encode_blob;
+
 // System Identifiers & Object References (The "Reg" Types)
 
 macro_rules! u32_wrapper {
@@ -1024,4 +1026,349 @@ impl From<JsonPath> for JsonValue {
     fn from(value: JsonPath) -> Self {
         JsonValue::String(value.path)
     }
+}
+
+// Full Text Search types
+
+pub struct Lexeme {
+    pub text: String,
+    pub positions_weights: Vec<(u16, char)>, // char: A, B, C, D (default: D and it is implict)
+}
+
+impl Lexeme {
+    pub fn try_extract_from(
+        buf: &mut &[u8],
+    ) -> Result<Self, Box<dyn std::error::Error + Sync + Send>> {
+        let text = try_extract_lexeme_text(buf)?;
+
+        let position_count = i16::from_be_bytes(match buf[..2].try_into() {
+            Ok(arr) => arr,
+            Err(e) => return Err(format!("buf too short for position count: {}", e).into()),
+        });
+
+        if position_count < 0 {
+            return Err(format!(
+                "expected non-negative position count, got: {}",
+                position_count
+            )
+            .into());
+        };
+
+        if position_count == 0 {
+            return Ok(Self {
+                text,
+                positions_weights: Vec::new(),
+            });
+        };
+
+        *buf = &buf[2..];
+
+        if buf.len() < (position_count as usize) * 2 {
+            return Err(format!(
+                "buf too short for positions and weights: expected {} bytes, got {}",
+                (position_count as usize) * 2,
+                buf.len()
+            )
+            .into());
+        };
+
+        let mut positions_weights = Vec::with_capacity(position_count as usize);
+        for _ in 0..position_count {
+            let position_weight = u16::from_be_bytes(buf[..2].try_into().unwrap());
+
+            let weight = match position_weight >> 14 {
+                0 => 'D',
+                1 => 'C',
+                2 => 'B',
+                3 => 'A',
+                _ => unreachable!(),
+            };
+
+            let position = position_weight & 0x3FFF;
+
+            *buf = &buf[2..];
+            positions_weights.push((position, weight));
+        }
+
+        Ok(Self {
+            text,
+            positions_weights,
+        })
+    }
+}
+
+pub struct TsVector {
+    lexemes: Vec<Lexeme>,
+}
+
+impl<'a> FromSql<'a> for TsVector {
+    fn from_sql(
+        _ty: &Type,
+        raw: &'a [u8],
+    ) -> Result<Self, Box<dyn std::error::Error + Sync + Send>> {
+        if raw.len() < 4 {
+            return Err(format!(
+                "raw buffer too short for TsVector: expected at least 4 bytes, got {}",
+                raw.len()
+            )
+            .into());
+        };
+
+        let count = i32::from_be_bytes(raw[..4].try_into().unwrap());
+
+        if count == 0 {
+            return Ok(Self {
+                lexemes: Vec::new(),
+            });
+        }
+
+        let mut buf = &raw[4..];
+
+        let mut lexemes = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            let lexeme = Lexeme::try_extract_from(&mut buf)?;
+            lexemes.push(lexeme);
+        }
+
+        Ok(Self { lexemes })
+    }
+
+    fn accepts(ty: &Type) -> bool {
+        match *ty {
+            Type::TS_VECTOR => true,
+            _ => false,
+        }
+    }
+}
+
+impl From<TsVector> for JsonValue {
+    #[inline]
+    fn from(value: TsVector) -> Self {
+        let mut ss = Vec::with_capacity(value.lexemes.len());
+
+        for lexeme in value.lexemes {
+            let mut s = String::new();
+            s.push_str(&format!("'{}':", lexeme.text));
+
+            let mut positions_weights = lexeme.positions_weights.into_iter();
+
+            if let Some((position, weight)) = positions_weights.next() {
+                s.push_str(&format!("{}", position));
+                if weight != 'D' {
+                    s.push(weight);
+                };
+            };
+
+            while let Some((position, weight)) = positions_weights.next() {
+                s.push_str(&format!(",{}", position));
+                if weight != 'D' {
+                    s.push(weight);
+                };
+            }
+            ss.push(s);
+        }
+
+        JsonValue::String(ss.join(" "))
+    }
+}
+
+// NOTE: the structure of this type is very complex so it will be converted to a string representation directly
+// instead of parsing the raw bytes
+pub struct TsQuery {
+    pub query: String,
+}
+
+impl<'a> FromSql<'a> for TsQuery {
+    fn from_sql(
+        _ty: &Type,
+        raw: &'a [u8],
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        let mut buf = raw;
+        match try_extract_ts_query(&mut buf, 4) {
+            Ok(query) => Ok(TsQuery { query }),
+            Err(e) => Err(e.into()),
+        }
+    }
+
+    fn accepts(ty: &Type) -> bool {
+        match *ty {
+            Type::TSQUERY => true,
+            _ => false,
+        }
+    }
+}
+
+impl From<TsQuery> for JsonValue {
+    #[inline(always)]
+    fn from(value: TsQuery) -> Self {
+        JsonValue::String(value.query)
+    }
+}
+
+pub struct GtsVector {
+    pub header: [u8; 4],
+    pub signature: u8,
+}
+
+impl<'a> FromSql<'a> for GtsVector {
+    fn from_sql(
+        _ty: &Type,
+        raw: &'a [u8],
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        if raw.len() < 5 {
+            return Err(format!(
+                "fail to extract gts_vector: expected at least 5 bytes, got {}",
+                raw.len()
+            )
+            .into());
+        };
+
+        let header = [raw[0], raw[1], raw[2], raw[3]];
+        let signature = raw[4];
+
+        Ok(Self { header, signature })
+    }
+
+    fn accepts(ty: &Type) -> bool {
+        match *ty {
+            Type::GTS_VECTOR => true,
+            _ => false,
+        }
+    }
+}
+
+impl From<GtsVector> for JsonValue {
+    #[inline(always)]
+    fn from(value: GtsVector) -> Self {
+        JsonValue::String(encode_blob(&[
+            value.header[0],
+            value.header[1],
+            value.header[2],
+            value.header[3],
+            value.signature,
+        ]))
+    }
+}
+
+fn try_extract_ts_query(buf: &mut &[u8], pre_lvl: u8) -> Result<String, String> {
+    if buf.len() == 0 {
+        return Err("fail to extract ts_query: buffer is empty".into());
+    };
+
+    match buf[0] {
+        1 => {
+            if buf.len() < 3 {
+                return Err("fail to extract ts_query operand: buffer is too short".into());
+            };
+
+            let weight = match buf[1] {
+                0 => 'D',
+                1 => 'C',
+                2 => 'B',
+                3 => 'A',
+                _ => {
+                    return Err(
+                        "fail to extract ts_query operand weight: invalid weight value".into(),
+                    );
+                }
+            };
+
+            let prefixed = buf[2] == 1;
+
+            *buf = &buf[2..];
+
+            let lexeme = try_extract_lexeme_text(buf)?;
+
+            let mut s = String::new();
+
+            s.push('\'');
+            s.push_str(&lexeme);
+            s.push('\'');
+            if prefixed {
+                s.push_str(":*");
+            };
+
+            if weight != 'D' {
+                if prefixed {
+                    s.push_str(&format!("{}", weight));
+                } else {
+                    s.push_str(&format!(":{}", weight));
+                }
+            };
+
+            Ok(s)
+        }
+
+        2 => {
+            let operator = match buf.get(1) {
+                Some(b) => *b,
+                None => {
+                    return Err("fail to extract ts_query operator: buffer is too short".into());
+                }
+            };
+
+            *buf = &buf[2..];
+
+            let (cur_lvl, operator) = match operator {
+                1 => {
+                    let operand = try_extract_ts_query(buf, 1)?;
+                    return Ok(format!("!{}", operand));
+                }
+
+                2 => (2, "&".into()),
+                3 => (3, "|".into()),
+                4 => {
+                    if buf.len() < 2 {
+                        return Err(
+                            "fail to extract ts_query phrase operator distance: buffer is to short"
+                                .into(),
+                        );
+                    };
+
+                    let distance = i16::from_be_bytes(buf[..2].try_into().unwrap());
+
+                    *buf = &buf[2..];
+
+                    if distance == 1 {
+                        (4, "<->".into())
+                    } else {
+                        (4, format!("<{}>", distance))
+                    }
+                }
+
+                _ => {
+                    return Err("fail to extract ts_query operator: invalid operator expected 1, 2, 3, or 4, got: {}".into());
+                }
+            };
+
+            let right_operand = try_extract_ts_query(buf, cur_lvl)?;
+            let left_operand = try_extract_ts_query(buf, cur_lvl)?;
+
+            if pre_lvl < cur_lvl {
+                Ok(format!("({} {} {})", left_operand, operator, right_operand))
+            } else {
+                Ok(format!("{} {} {}", left_operand, operator, right_operand))
+            }
+        }
+
+        _ => {
+            return Err("fail to extract ts_query: expected 1 or 2 got: {}".into());
+        }
+    }
+}
+
+#[inline]
+fn try_extract_lexeme_text(buf: &mut &[u8]) -> Result<String, String> {
+    let Some(nul_pos) = buf.iter().position(|b| *b == 0) else {
+        return Err("lexeme string not terminated".into());
+    };
+
+    let text = match String::from_utf8(buf[..nul_pos].to_vec()) {
+        Ok(s) => s,
+        Err(e) => return Err(format!("invalid UTF-8 in lexeme string: {}", e)),
+    };
+
+    *buf = &buf[nul_pos + 1..];
+
+    Ok(text)
 }
