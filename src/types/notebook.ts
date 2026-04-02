@@ -6,6 +6,7 @@ export interface NotebookCell {
   id: string;
   type: NotebookCellType;
   content: string;
+  schema?: string; // SQL only: per-cell database override
   result?: QueryResult | null;
   error?: string;
   executionTime?: number | null;
@@ -25,5 +26,6 @@ export interface NotebookFile {
   cells: Array<{
     type: NotebookCellType;
     content: string;
+    schema?: string;
   }>;
 }

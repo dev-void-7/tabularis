@@ -17,6 +17,7 @@ import {
   deserializeNotebook,
 } from "../../utils/notebookFile";
 import { useDatabase } from "../../hooks/useDatabase";
+import { isMultiDatabaseCapable } from "../../utils/database";
 import { useSettings } from "../../hooks/useSettings";
 import { useAlert } from "../../hooks/useAlert";
 import { useKeybindings } from "../../hooks/useKeybindings";
@@ -33,7 +34,9 @@ interface NotebookViewProps {
 
 export function NotebookView({ tab, updateTab, connectionId }: NotebookViewProps) {
   const { t } = useTranslation();
-  const { activeSchema } = useDatabase();
+  const { activeSchema, activeCapabilities, selectedDatabases } = useDatabase();
+  const isMultiDb = isMultiDatabaseCapable(activeCapabilities) && selectedDatabases.length > 1;
+  const effectiveSchema = tab.schema || activeSchema || (isMultiDb ? selectedDatabases[0] : null);
   const { settings } = useSettings();
   const { showAlert } = useAlert();
   const { matchesShortcut } = useKeybindings();
@@ -92,6 +95,7 @@ export function NotebookView({ tab, updateTab, connectionId }: NotebookViewProps
           ? settings.resultPageSize
           : 100;
 
+      const cellSchema = cell.schema || effectiveSchema;
       const start = performance.now();
       try {
         const res = await invoke<QueryResult>("execute_query", {
@@ -99,7 +103,7 @@ export function NotebookView({ tab, updateTab, connectionId }: NotebookViewProps
           query: cell.content.trim(),
           limit: pageSize,
           page: 1,
-          ...(activeSchema ? { schema: activeSchema } : {}),
+          ...(cellSchema ? { schema: cellSchema } : {}),
         });
         const elapsed = performance.now() - start;
         updateCell(cellId, {
@@ -118,7 +122,7 @@ export function NotebookView({ tab, updateTab, connectionId }: NotebookViewProps
         });
       }
     },
-    [connectionId, activeSchema, settings.resultPageSize, updateCell],
+    [connectionId, effectiveSchema, settings.resultPageSize, updateCell],
   );
 
   const runAll = useCallback(async () => {
@@ -219,6 +223,9 @@ export function NotebookView({ tab, updateTab, connectionId }: NotebookViewProps
               onMoveUp={() => moveCell(cell.id, -1)}
               onMoveDown={() => moveCell(cell.id, 1)}
               onRun={() => runCell(cell.id)}
+              activeSchema={cell.schema || effectiveSchema || undefined}
+              selectedDatabases={isMultiDb ? selectedDatabases : undefined}
+              onSchemaChange={isMultiDb ? (schema) => updateCell(cell.id, { schema }) : undefined}
             />
             <AddCellButton
               onAddSql={() => addCell("sql", index)}

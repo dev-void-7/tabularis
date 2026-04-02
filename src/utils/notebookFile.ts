@@ -13,6 +13,7 @@ export function serializeNotebook(
     cells: cells.map((c) => ({
       type: c.type,
       content: c.content,
+      ...(c.schema ? { schema: c.schema } : {}),
     })),
   };
 }
@@ -55,6 +56,7 @@ export function deserializeNotebook(json: string): {
       id: generateCellId(),
       type: c.type,
       content: c.content,
+      schema: c.schema,
       result: null,
       error: undefined,
       executionTime: null,

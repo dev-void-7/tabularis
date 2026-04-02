@@ -12,6 +12,9 @@ interface NotebookCellWrapperProps {
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRun: () => void;
+  activeSchema?: string;
+  selectedDatabases?: string[];
+  onSchemaChange?: (schema: string) => void;
 }
 
 export function NotebookCellWrapper({
@@ -23,6 +26,9 @@ export function NotebookCellWrapper({
   onMoveUp,
   onMoveDown,
   onRun,
+  activeSchema,
+  selectedDatabases,
+  onSchemaChange,
 }: NotebookCellWrapperProps) {
   return (
     <div className="bg-base border border-default rounded-lg overflow-hidden">
@@ -41,6 +47,9 @@ export function NotebookCellWrapper({
             : undefined
         }
         isLoading={cell.isLoading}
+        activeSchema={activeSchema}
+        selectedDatabases={selectedDatabases}
+        onSchemaChange={onSchemaChange}
       />
 
       {cell.type === "sql" ? (

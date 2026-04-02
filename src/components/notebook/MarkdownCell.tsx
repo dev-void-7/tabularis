@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect } from "react";
 import Markdown from "react-markdown";
 import { useTranslation } from "react-i18next";
 import type { NotebookCell } from "../../types/notebook";
@@ -49,17 +49,13 @@ function MarkdownEditor({
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const autoResize = useCallback(() => {
+  useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = "auto";
       textarea.style.height = `${Math.max(80, textarea.scrollHeight)}px`;
     }
-  }, []);
-
-  useEffect(() => {
-    autoResize();
-  }, [content, autoResize]);
+  }, [content]);
 
   return (
     <textarea
@@ -68,7 +64,6 @@ function MarkdownEditor({
       onChange={(e) => onContentChange(e.target.value)}
       placeholder={placeholder}
       className="w-full bg-base text-sm text-primary font-mono p-3 resize-none outline-none border-none min-h-[80px]"
-      onInput={autoResize}
     />
   );
 }

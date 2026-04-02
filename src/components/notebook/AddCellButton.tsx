@@ -20,7 +20,6 @@ export function AddCellButton({ onAddSql, onAddMarkdown }: AddCellButtonProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        onBlur={() => setTimeout(() => setIsOpen(false), 150)}
         className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-surface-secondary text-muted hover:text-primary hover:bg-surface-tertiary opacity-0 group-hover:opacity-100 transition-all"
       >
         <Plus size={14} />
@@ -28,7 +27,12 @@ export function AddCellButton({ onAddSql, onAddMarkdown }: AddCellButtonProps) {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full mt-1 z-20 bg-elevated border border-default rounded-lg shadow-lg overflow-hidden">
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute top-full mt-1 z-20 bg-elevated border border-default rounded-lg shadow-lg overflow-hidden">
           <button
             type="button"
             onClick={() => {
@@ -56,6 +60,7 @@ export function AddCellButton({ onAddSql, onAddMarkdown }: AddCellButtonProps) {
             {t("editor.notebook.addMarkdownCell")}
           </button>
         </div>
+        </>
       )}
     </div>
   );

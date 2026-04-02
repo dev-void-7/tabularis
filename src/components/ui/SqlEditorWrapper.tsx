@@ -36,6 +36,19 @@ const SqlEditorInternal = ({
     ? (allThemes.find((t) => t.id === settings.editorTheme) ?? currentTheme)
     : currentTheme;
 
+  // Dispose editor on unmount to prevent "domNode" errors from ResizeObserver
+  // firing after the DOM container is removed (e.g., cell deletion/movement)
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      editorRef.current?.dispose();
+      editorRef.current = null;
+      monacoRef.current = null;
+    };
+  }, []);
+
   // Sync editor value only when initialValue changes externally (e.g., tab switch)
   // Preserve cursor position to avoid jumping to start during debounced updates
   useEffect(() => {

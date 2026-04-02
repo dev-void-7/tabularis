@@ -47,7 +47,7 @@ export function SqlCellResult({
           })}
         </span>
       </div>
-      <div className="max-h-[300px] overflow-auto">
+      <div className="h-[300px] overflow-hidden">
         <DataGrid
           columns={result.columns}
           data={result.rows}

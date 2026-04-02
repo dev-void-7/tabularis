@@ -1950,6 +1950,7 @@ export const Editor = () => {
             addTab({
               type: "notebook",
               notebookState: createDefaultNotebookState(),
+              ...(isMultiDb ? { schema: selectedDatabases[0] } : {}),
             })
           }
           className="flex items-center justify-center w-9 h-full text-orange-400 hover:text-white hover:bg-surface-secondary border-l border-default transition-colors shrink-0"
