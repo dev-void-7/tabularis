@@ -1,4 +1,5 @@
 import type { Tab } from '../types/editor';
+import type { NotebookState } from '../types/notebook';
 
 /**
  * Interface representing a cleaned tab with only persistent data
@@ -6,7 +7,7 @@ import type { Tab } from '../types/editor';
 export interface CleanedTab {
   id: string;
   title: string;
-  type: 'console' | 'table' | 'query_builder';
+  type: 'console' | 'table' | 'query_builder' | 'notebook';
   query: string;
   page: number;
   activeTable: string | null;
@@ -18,6 +19,14 @@ export interface CleanedTab {
   sortClause?: string;
   limitClause?: number;
   queryParams?: Record<string, string>;
+  notebookState?: {
+    cells: Array<{
+      id: string;
+      type: 'sql' | 'markdown';
+      content: string;
+      isPreview?: boolean;
+    }>;
+  };
 }
 
 /**
@@ -43,6 +52,16 @@ export function cleanTabForStorage(tab: Tab): CleanedTab {
     sortClause: tab.sortClause,
     limitClause: tab.limitClause,
     queryParams: tab.queryParams,
+    notebookState: tab.notebookState
+      ? {
+          cells: tab.notebookState.cells.map((cell) => ({
+            id: cell.id,
+            type: cell.type,
+            content: cell.content,
+            isPreview: cell.isPreview,
+          })),
+        }
+      : undefined,
   };
 }
 
@@ -70,5 +89,16 @@ export function restoreTabFromStorage(cleanedTab: Partial<Tab>): Tab {
     pendingChanges: undefined,
     pendingDeletions: undefined,
     selectedRows: undefined,
+    notebookState: cleanedTab.notebookState
+      ? {
+          cells: (cleanedTab.notebookState as NotebookState).cells.map((cell) => ({
+            ...cell,
+            result: null,
+            error: undefined,
+            executionTime: null,
+            isLoading: false,
+          })),
+        }
+      : undefined,
   };
 }

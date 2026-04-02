@@ -375,7 +375,9 @@
       "switchConnection": "切换到连接 1–9",
       "resetToDefault": "重置为默认",
       "notOverridable": "内置，不可自定义",
-      "pressKeys": "按下组合键..."
+      "pressKeys": "按下组合键...",
+      "notebookRunAll": "运行所有单元格",
+      "categories_notebook": "笔记本"
     }
   },
   "update": {
@@ -602,7 +604,31 @@
     "paramValuePlaceholder": "值（例如 'text' 或 123）",
     "failedCreateRow": "创建新行失败：",
     "failedProcessInsertions": "处理插入失败：",
-    "fieldRequired": "此字段是必需的"
+    "fieldRequired": "此字段是必需的",
+    "newNotebook": "新建笔记本",
+    "notebook": {
+      "addSqlCell": "添加 SQL 单元格",
+      "addMarkdownCell": "添加 Markdown 单元格",
+      "runAll": "全部运行",
+      "runAllTooltip": "从上到下执行所有 SQL 单元格",
+      "runCell": "运行单元格",
+      "deleteCell": "删除单元格",
+      "moveCellUp": "上移",
+      "moveCellDown": "下移",
+      "export": "导出笔记本",
+      "import": "导入笔记本",
+      "emptyNotebook": "此笔记本为空。添加一个单元格以开始。",
+      "markdownPlaceholder": "在此编写 Markdown...",
+      "togglePreview": "切换预览",
+      "sqlCell": "SQL",
+      "markdownCell": "Markdown",
+      "invalidFile": "无效的笔记本文件格式",
+      "importSuccess": "笔记本导入成功",
+      "exportSuccess": "笔记本导出成功",
+      "convertToConsole": "转换为控制台",
+      "runningAll": "正在运行所有单元格...",
+      "cellResult": "{{count}} 行 · {{time}}毫秒"
+    }
   },
   "createTable": {
     "title": "创建新表",

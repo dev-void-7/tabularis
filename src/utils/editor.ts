@@ -124,6 +124,13 @@ export function generateTabTitle(
       : `Visual Query ${queryBuilderCount + 1}`;
   }
 
+  if (partial?.type === "notebook") {
+    const notebookCount = tabs.filter(
+      (t) => t.connectionId === activeConnectionId && t.type === "notebook",
+    ).length;
+    return notebookCount === 0 ? "Notebook" : `Notebook ${notebookCount + 1}`;
+  }
+
   return consoleCount === 0 ? "Console" : `Console ${consoleCount + 1}`;
 }
 

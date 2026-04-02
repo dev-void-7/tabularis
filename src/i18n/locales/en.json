@@ -399,7 +399,9 @@
       "switchConnection": "Switch to connection 1–9",
       "resetToDefault": "Reset to default",
       "notOverridable": "Built-in, not customizable",
-      "pressKeys": "Press key combination..."
+      "pressKeys": "Press key combination...",
+      "notebookRunAll": "Run All Cells",
+      "categories_notebook": "Notebook"
     }
   },
   "update": {
@@ -626,7 +628,31 @@
     "paramValuePlaceholder": "Value (e.g. 'text' or 123)",
     "failedCreateRow": "Failed to create new row: ",
     "failedProcessInsertions": "Failed to process insertions: ",
-    "fieldRequired": "This field is required"
+    "fieldRequired": "This field is required",
+    "newNotebook": "New Notebook",
+    "notebook": {
+      "addSqlCell": "Add SQL Cell",
+      "addMarkdownCell": "Add Markdown Cell",
+      "runAll": "Run All",
+      "runAllTooltip": "Execute all SQL cells top to bottom",
+      "runCell": "Run Cell",
+      "deleteCell": "Delete Cell",
+      "moveCellUp": "Move Up",
+      "moveCellDown": "Move Down",
+      "export": "Export Notebook",
+      "import": "Import Notebook",
+      "emptyNotebook": "This notebook is empty. Add a cell to get started.",
+      "markdownPlaceholder": "Write Markdown here...",
+      "togglePreview": "Toggle Preview",
+      "sqlCell": "SQL",
+      "markdownCell": "Markdown",
+      "invalidFile": "Invalid notebook file format",
+      "importSuccess": "Notebook imported successfully",
+      "exportSuccess": "Notebook exported successfully",
+      "convertToConsole": "Convert to Console",
+      "runningAll": "Running all cells...",
+      "cellResult": "{{count}} rows · {{time}}ms"
+    }
   },
   "createTable": {
     "title": "Create New Table",

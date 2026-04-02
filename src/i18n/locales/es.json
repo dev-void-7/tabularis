@@ -399,7 +399,9 @@
       "switchConnection": "Cambiar a conexión 1–9",
       "resetToDefault": "Restablecer predeterminado",
       "notOverridable": "Integrado, no personalizable",
-      "pressKeys": "Pulsa la combinación de teclas..."
+      "pressKeys": "Pulsa la combinación de teclas...",
+      "notebookRunAll": "Ejecutar Todas las Celdas",
+      "categories_notebook": "Notebook"
     }
   },
   "update": {
@@ -616,7 +618,31 @@
     "queryParameters": "Parámetros de Consulta",
     "convertToConsole": "Convertir a Consola",
     "parameters": "Parámetros",
-    "paramValuePlaceholder": "Valor (ej. 'texto' o 123)"
+    "paramValuePlaceholder": "Valor (ej. 'texto' o 123)",
+    "newNotebook": "Nuevo Notebook",
+    "notebook": {
+      "addSqlCell": "Agregar Celda SQL",
+      "addMarkdownCell": "Agregar Celda Markdown",
+      "runAll": "Ejecutar Todo",
+      "runAllTooltip": "Ejecutar todas las celdas SQL de arriba a abajo",
+      "runCell": "Ejecutar Celda",
+      "deleteCell": "Eliminar Celda",
+      "moveCellUp": "Mover Arriba",
+      "moveCellDown": "Mover Abajo",
+      "export": "Exportar Notebook",
+      "import": "Importar Notebook",
+      "emptyNotebook": "Este notebook está vacío. Agrega una celda para comenzar.",
+      "markdownPlaceholder": "Escribe Markdown aquí...",
+      "togglePreview": "Vista Previa",
+      "sqlCell": "SQL",
+      "markdownCell": "Markdown",
+      "invalidFile": "Formato de archivo notebook no válido",
+      "importSuccess": "Notebook importado exitosamente",
+      "exportSuccess": "Notebook exportado exitosamente",
+      "convertToConsole": "Convertir a Consola",
+      "runningAll": "Ejecutando todas las celdas...",
+      "cellResult": "{{count}} filas · {{time}}ms"
+    }
   },
   "createTable": {
     "title": "Crear Nueva Tabla",

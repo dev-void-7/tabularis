@@ -39,6 +39,7 @@ export interface QueryResult {
   pagination?: Pagination;
 }
 
+import type { NotebookState } from "./notebook";
 import type { Node, Edge } from "@xyflow/react";
 
 export interface FlowState {
@@ -55,7 +56,7 @@ export interface PendingInsertion {
 export interface Tab {
   id: string;
   title: string;
-  type: "console" | "table" | "query_builder";
+  type: "console" | "table" | "query_builder" | "notebook";
   query: string;
   result: QueryResult | null;
   error: string;
@@ -83,6 +84,7 @@ export interface Tab {
   limitClause?: number; // SQL LIMIT value
   queryParams?: Record<string, string>; // Saved values for query parameters
   schema?: string; // Schema name (PostgreSQL) for query reconstruction
+  notebookState?: NotebookState;
 }
 
 export interface EditorPreferences {

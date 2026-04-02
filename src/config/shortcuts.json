@@ -118,5 +118,15 @@
     "winMatch": { "ctrlKey": true, "shiftKey": true, "key": "1" },
     "i18nKey": "settings.shortcuts.switchConnection",
     "overridable": false
+  },
+  {
+    "id": "notebook_run_all",
+    "category": "notebook",
+    "defaultMac": "⌘+Shift+Enter",
+    "defaultWin": "Ctrl+Shift+Enter",
+    "macMatch": { "metaKey": true, "shiftKey": true, "key": "Enter" },
+    "winMatch": { "ctrlKey": true, "shiftKey": true, "key": "Enter" },
+    "i18nKey": "settings.shortcuts.notebookRunAll",
+    "overridable": true
   }
 ]
