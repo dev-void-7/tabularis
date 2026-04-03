@@ -365,7 +365,7 @@ pub fn check_ai_key_status(provider: String) -> AiKeyStatus {
 const DEFAULT_SYSTEM_PROMPT: &str = "You are an expert SQL assistant. Your task is to generate a SQL query based on the user's request and the provided database schema.\nReturn ONLY the SQL query, without any markdown formatting, explanations, or code blocks.\n\nSchema:\n{{SCHEMA}}";
 const DEFAULT_EXPLAIN_PROMPT: &str =
     "You are a helpful SQL assistant. Explain SQL queries in {{LANGUAGE}}.";
-const DEFAULT_CELLNAME_PROMPT: &str = "You are an assistant that generates concise, descriptive names for notebook cells.\nGiven a SQL query, return ONLY a short name (3-6 words max) that describes what the query does.\nDo not include quotes, punctuation, or explanations. Just the name.";
+const DEFAULT_CELLNAME_PROMPT: &str = "You are an assistant that generates concise, descriptive names for notebook cells.\nGiven a SQL query or Markdown content, return ONLY a short name (3-6 words max) that describes what the cell does or what it is about.\nDo not include quotes, punctuation, or explanations. Just the name.";
 
 #[tauri::command]
 pub fn get_system_prompt(app: AppHandle) -> String {

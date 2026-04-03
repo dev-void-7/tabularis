@@ -276,9 +276,9 @@
       "explainPrompt": "Explain Prompt",
       "explainPromptDesc": "Customize instructions for \"Explain Query\". Use {{LANGUAGE}} as a placeholder for the output language (English/Italian).",
       "enterExplainPrompt": "Enter explain prompt...",
-      "cellnamePrompt": "Cell Name Prompt",
-      "cellnamePromptDesc": "Customize instructions for AI cell name generation. The SQL query is sent as the user message.",
-      "enterCellnamePrompt": "Enter cell name prompt...",
+      "cellnamePrompt": "Notebook Cell Name Prompt",
+      "cellnamePromptDesc": "Customize instructions for AI notebook cell name generation. The cell content (SQL or Markdown) is sent as the user message.",
+      "enterCellnamePrompt": "Enter notebook cell name prompt...",
       "keySaved": "API Key saved securely",
       "promptSaved": "System prompt saved successfully",
       "explainPromptSaved": "Explain prompt saved successfully",
@@ -677,13 +677,16 @@
       "noHistory": "No execution history yet",
       "collapseCell": "Collapse Cell",
       "expandCell": "Expand Cell",
+      "collapseAll": "Collapse All",
+      "expandAll": "Expand All",
       "outline": "Outline",
       "aiGenerate": "Generate SQL with AI",
       "aiExplain": "Explain this Query with AI",
       "cellNamePlaceholder": "Untitled",
       "editCellName": "Edit cell name",
       "aiGenerateName": "Generate name with AI",
-      "generatingName": "Generating name..."
+      "generatingName": "Generating name...",
+      "aiGenerateOutlineNames": "Generate names for unnamed cells with AI"
     }
   },
   "createTable": {

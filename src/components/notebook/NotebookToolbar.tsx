@@ -7,6 +7,8 @@ import {
   Loader2,
   OctagonX,
   FileCode,
+  ChevronsDownUp,
+  ChevronsUpDown,
 } from "lucide-react";
 
 interface NotebookToolbarProps {
@@ -19,6 +21,8 @@ interface NotebookToolbarProps {
   isRunning: boolean;
   stopOnError: boolean;
   onToggleStopOnError: () => void;
+  onCollapseAll: () => void;
+  onExpandAll: () => void;
 }
 
 function ToolbarButton({
@@ -63,6 +67,8 @@ export function NotebookToolbar({
   isRunning,
   stopOnError,
   onToggleStopOnError,
+  onCollapseAll,
+  onExpandAll,
 }: NotebookToolbarProps) {
   const { t } = useTranslation();
 
@@ -120,6 +126,25 @@ export function NotebookToolbar({
           <OctagonX size={12} />
           <span>{t("editor.notebook.stopOnError")}</span>
         </button>
+      </ToolbarGroup>
+
+      <Separator />
+
+      <ToolbarGroup>
+        <ToolbarButton
+          onClick={onCollapseAll}
+          title={t("editor.notebook.collapseAll")}
+        >
+          <ChevronsDownUp size={14} />
+          <span>{t("editor.notebook.collapseAll")}</span>
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={onExpandAll}
+          title={t("editor.notebook.expandAll")}
+        >
+          <ChevronsUpDown size={14} />
+          <span>{t("editor.notebook.expandAll")}</span>
+        </ToolbarButton>
       </ToolbarGroup>
 
       <div className="flex-1" />

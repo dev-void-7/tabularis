@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { extractOutline } from "../../src/utils/notebookOutline";
+import { extractOutline, getUnnamedCellsWithContent } from "../../src/utils/notebookOutline";
 import type { NotebookCell } from "../../src/types/notebook";
 
 function makeCell(overrides: Partial<NotebookCell> = {}): NotebookCell {
@@ -106,6 +106,45 @@ describe("notebookOutline", () => {
 
       const entries = extractOutline(cells);
       expect(entries[0].text).toBe("Spaced Title");
+    });
+  });
+
+  describe("getUnnamedCellsWithContent", () => {
+    it("returns cells without a name that have content", () => {
+      const cells = [
+        makeCell({ id: "c1", type: "sql", content: "SELECT 1" }),
+        makeCell({ id: "c2", type: "sql", content: "SELECT 2", name: "Named" }),
+        makeCell({ id: "c3", content: "# Hello" }),
+      ];
+
+      const result = getUnnamedCellsWithContent(cells);
+      expect(result).toHaveLength(2);
+      expect(result.map((c) => c.id)).toEqual(["c1", "c3"]);
+    });
+
+    it("excludes cells with empty or whitespace-only content", () => {
+      const cells = [
+        makeCell({ id: "c1", content: "" }),
+        makeCell({ id: "c2", content: "   " }),
+        makeCell({ id: "c3", content: "Some content" }),
+      ];
+
+      const result = getUnnamedCellsWithContent(cells);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("c3");
+    });
+
+    it("returns empty array when all cells are named", () => {
+      const cells = [
+        makeCell({ id: "c1", content: "SELECT 1", name: "Query 1" }),
+        makeCell({ id: "c2", content: "# Intro", name: "Intro Section" }),
+      ];
+
+      expect(getUnnamedCellsWithContent(cells)).toEqual([]);
+    });
+
+    it("returns empty array for empty cells list", () => {
+      expect(getUnnamedCellsWithContent([])).toEqual([]);
     });
   });
 });

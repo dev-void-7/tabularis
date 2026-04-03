@@ -10,6 +10,11 @@ export interface OutlineEntry {
 
 const HEADING_REGEX = /^(#{1,3})\s+(.+)$/;
 
+/** Return cells that have content but no name (candidates for AI naming). */
+export function getUnnamedCellsWithContent(cells: NotebookCell[]): NotebookCell[] {
+  return cells.filter((c) => !c.name && c.content.trim());
+}
+
 /** Extract outline entries from all cells for TOC rendering. */
 export function extractOutline(cells: NotebookCell[]): OutlineEntry[] {
   const entries: OutlineEntry[] = [];

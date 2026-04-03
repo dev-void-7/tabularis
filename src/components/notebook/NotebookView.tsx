@@ -452,6 +452,14 @@ export function NotebookView({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [matchesShortcut, runAll]);
 
+  const collapseAll = useCallback(() => {
+    updateNotebook(cellsRef.current.map((c) => ({ ...c, isCollapsed: true })));
+  }, [updateNotebook]);
+
+  const expandAll = useCallback(() => {
+    updateNotebook(cellsRef.current.map((c) => ({ ...c, isCollapsed: false })));
+  }, [updateNotebook]);
+
   const toolbarProps = {
     onAddSqlCell: () => {
       const id = addCell("sql");
@@ -470,6 +478,8 @@ export function NotebookView({
     isRunning: isRunningAll,
     stopOnError,
     onToggleStopOnError: toggleStopOnError,
+    onCollapseAll: collapseAll,
+    onExpandAll: expandAll,
   };
 
   // Empty state
@@ -490,7 +500,11 @@ export function NotebookView({
       <NotebookToolbar {...toolbarProps} />
       <div ref={scrollContainerRef} className="flex-1 overflow-auto p-4 space-y-0">
         <ParamsPanel params={params} onParamsChange={handleParamsChange} />
-        <NotebookOutline cells={cells} onScrollToCell={scrollToCell} />
+        <NotebookOutline
+          cells={cells}
+          onScrollToCell={scrollToCell}
+          onCellNameGenerated={(cellId, name) => updateCell(cellId, { name })}
+        />
 
         {runAllResult && (
           <RunAllSummary
