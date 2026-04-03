@@ -1089,8 +1089,8 @@ mod tests {
     #[test]
     fn test_tsquery() {
         // TsQuery binary: type byte + data
-        // type=1 (operand): weight(1) + prefixed(1) + null-terminated text
-        let buf = [1u8, 0, 0, b'f', b'o', b'o', 0]; // operand 'foo', weight D, not prefixed
+        // length, type=1 (operand): weight(0) + prefixed(1) + null-terminated text
+        let buf = [0u8, 0, 0, 1, 1, 0, 0, b'f', b'o', b'o', 0]; // operand 'foo', weight D, not prefixed
         assert_eq!(
             extract_or_null(&Type::TSQUERY, &buf),
             JsonValue::String("'foo'".to_string())
@@ -1101,6 +1101,7 @@ mod tests {
     fn test_tsquery_and() {
         // AND query: type=2, operator=2 (&), then two operands
         let buf = [
+            0u8, 0, 0, 3, // length prefix
             2u8, 2, // type=2, operator=AND
             1u8, 0, 0, b'f', b'o', b'o', 0, // operand 'foo'
             1u8, 0, 0, b'b', b'a', b'r', 0, // operand 'bar'
@@ -1108,6 +1109,324 @@ mod tests {
         assert_eq!(
             extract_or_null(&Type::TSQUERY, &buf),
             JsonValue::String("'bar' & 'foo'".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_simple_operand() {
+        // Simple operand: 'hello' (weight D, not prefixed)
+        let buf = [
+            0u8, 0, 0, 1, // length prefix
+            1u8, 0, 0, b'h', b'e', b'l', b'l', b'o', 0,
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'hello'".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_all_weights() {
+        // Weight A
+        let buf_a = [
+            0u8, 0, 0, 1, // length prefix
+            1u8, 8, 0, b'a', 0,
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf_a),
+            JsonValue::String("'a':A".to_string())
+        );
+
+        // Weight B
+        let buf_b = [
+            0u8, 0, 0, 1, // length prefix
+            1u8, 4, 0, b'b', 0,
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf_b),
+            JsonValue::String("'b':B".to_string())
+        );
+
+        // Weight C
+        let buf_c = [
+            0u8, 0, 0, 1, // length prefix
+            1u8, 2, 0, b'c', 0,
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf_c),
+            JsonValue::String("'c':C".to_string())
+        );
+
+        // Weight D
+        let buf_d = [
+            0u8, 0, 0, 1, // length prefix
+            1u8, 1, 0, b'd', 0,
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf_d),
+            JsonValue::String("'d':D".to_string())
+        );
+
+        // no Weight (default)
+        let buf_d = [
+            0u8, 0, 0, 1, // length prefix
+            1u8, 0, 0, b'd', 0,
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf_d),
+            JsonValue::String("'d'".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_prefixed() {
+        // 'foo':* (weight D, prefixed)
+        let buf = [
+            0u8, 0, 0, 1, // length prefix
+            1u8, 0, 1, b'f', b'o', b'o', 0,
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'foo':*".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_prefixed_with_weight() {
+        // 'bar':*A (weight A, prefixed) — code outputs weight after :*
+        let buf = [
+            0u8, 0, 0, 1, // length prefix
+            1u8, 8, 1, b'b', b'a', b'r', 0,
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'bar':*A".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_not() {
+        // !'foo':*
+        // Tree:
+        //   NOT(1)
+        //     |
+        //  'foo':*
+        let buf = [
+            0u8, 0, 0, 2, // length prefix
+            2, 1, // NOT operator
+            1, 0, 1, b'f', b'o', b'o', 0, // operand: weight D, prefixed, "foo"
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("!'foo':*".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_or() {
+        // 'cat' | 'dog'
+        let buf = [
+            0u8, 0, 0, 3, // length prefix
+            2, 3, // OR operator
+            1, 0, 0, b'd', b'o', b'g', 0, // right: 'dog'
+            1, 0, 0, b'c', b'a', b't', 0, // left: 'cat'
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'cat' | 'dog'".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_phrase_default_distance() {
+        // 'hello' <-> 'world' (distance=1)
+        let buf = [
+            0u8, 0, 0, 3, // length prefix
+            2, 4, 0x00, 0x01, // PHRASE operator, distance=1
+            1, 0, 0, b'w', b'o', b'r', b'l', b'd', 0, // right: 'world'
+            1, 0, 0, b'h', b'e', b'l', b'l', b'o', 0, // left: 'hello'
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'hello' <-> 'world'".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_phrase_custom_distance() {
+        // 'hello' <5> 'world'
+        let buf = [
+            0u8, 0, 0, 3, // length prefix
+            2, 4, 0x00, 0x05, // PHRASE operator, distance=5
+            1, 0, 0, b'w', b'o', b'r', b'l', b'd', 0, // right: 'world'
+            1, 0, 0, b'h', b'e', b'l', b'l', b'o', 0, // left: 'hello'
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'hello' <5> 'world'".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_and_or_nesting() {
+        // 'fat':A & 'rat':B | ('cat':C <-> 'mat':A)
+        // Tree:
+        //              OR(3)
+        //            /      \
+        //        AND(2)    PHRASE(4,d=1)
+        //        /   \      /         \
+        //   'fat':A 'rat':B 'cat':C  'mat':A
+        let buf = [
+            0u8, 0, 0, 7, // length prefix
+            2, 3, // OR
+            2, 4, 0x00, 0x01, //   PHRASE d=1
+            1, 8, 0, b'm', b'a', b't', 0, //     right: 'mat':A
+            1, 2, 0, b'c', b'a', b't', 0, //     left: 'cat':C
+            2, 2, //   AND
+            1, 4, 0, b'r', b'a', b't', 0, //     right: 'rat':B
+            1, 8, 0, b'f', b'a', b't', 0, //     left: 'fat':A
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'fat':A & 'rat':B | 'cat':C <-> 'mat':A".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_deeply_nested() {
+        // 'a':A & 'b':B & ('c':C | ('d':A <-> 'e':B))
+        // Tree:
+        //                  AND(2)
+        //               /         \
+        //           AND(2)        OR(3)
+        //          /    \        /    \
+        //      'a':A  'b':B  'c':C  PHRASE(4,d=1)
+        //                           /        \
+        //                        'd':A      'e':B
+        let buf = [
+            0u8, 0, 0, 9, // length prefix
+            2, 2, // top AND
+            2, 3, //   right: OR
+            2, 4, 0x00, 0x01, //     right of OR: PHRASE d=1
+            1, 4, 0, b'e', 0, //       right: 'e':B
+            1, 8, 0, b'd', 0, //       left: 'd':A
+            1, 2, 0, b'c', 0, //     left of OR: 'c':C
+            2, 2, //   left: AND
+            1, 4, 0, b'b', 0, //     right: 'b':B
+            1, 8, 0, b'a', 0, //     left: 'a':A
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'a':A & 'b':B & ('c':C | 'd':A <-> 'e':B)".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_not_with_or() {
+        // !'foo' | 'bar'
+        // Tree:
+        //       OR(3)
+        //      /    \
+        //   'bar'  NOT(1)
+        //            |
+        //          'foo'
+        let buf = [
+            0u8, 0, 0, 4, // length prefix
+            2, 3, // OR
+            1, 0, 0, b'b', b'a', b'r', 0, // right: 'bar'
+            2, 1, // left: NOT
+            1, 0, 0, b'f', b'o', b'o', 0, //   operand: 'foo'
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("!'foo' | 'bar'".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_complex_search_query() {
+        // Represents a realistic full-text search:
+        // 'quick':A & 'brown':B & ('fox':C | 'dog') & !'cat':*
+        // Tree:
+        //                      AND(2)
+        //                   /         \
+        //               AND(2)       AND(2)
+        //              /    \        /    \
+        //         'quick':A 'brown':B OR(3) NOT(1)
+        //                              / \    |
+        //                          'fox':C 'dog' 'cat':*
+        let buf = [
+            0u8, 0, 0, 10, // length prefix
+            2, 2, // top AND
+            2, 2, //   right: AND
+            2, 3, //     right: OR
+            1, 0, 0, b'd', b'o', b'g', 0, //       right: 'dog'
+            1, 2, 0, b'f', b'o', b'x', 0, //       left: 'fox':C
+            2, 1, //     left: NOT
+            1, 0, 1, b'c', b'a', b't', 0, //       operand: 'cat':*
+            2, 2, //   left: AND
+            1, 4, 0, b'b', b'r', b'o', b'w', b'n', 0, //     right: 'brown':B
+            1, 8, 0, b'q', b'u', b'i', b'c', b'k', 0, //     left: 'quick':A
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'quick':A & 'brown':B & !'cat':* & ('fox':C | 'dog')".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_multiple_phrases() {
+        // 'the' <-> 'quick' & 'brown' <-> 'fox'
+        // Tree:
+        //           AND(2)
+        //          /      \
+        //     PHRASE(4)  PHRASE(4)
+        //     /    \      /    \
+        //  'the' 'quick' 'brown' 'fox'
+
+        let buf = [
+            0, 0, 0, 7, // length prefix
+            2, 2, // AND
+            2, 4, 0x00, 0x01, //   right: PHRASE
+            1, 0, 0, b'f', b'o', b'x', 0, //     right: 'fox'
+            1, 0, 0, b'b', b'r', b'o', b'w', b'n', 0, //     left: 'brown'
+            2, 4, 0x00, 0x01, //   left: PHRASE
+            1, 0, 0, b'q', b'u', b'i', b'c', b'k', 0, //     right: 'quick'
+            1, 0, 0, b't', b'h', b'e', 0, //     left: 'the'
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'the' <-> 'quick' & 'brown' <-> 'fox'".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_not_not() {
+        // !!'foo' (double negation)
+        let buf = [
+            0u8, 0, 0, 3, // length prefix
+            2, 1, // outer NOT
+            2, 1, // inner NOT
+            1, 0, 0, b'f', b'o', b'o', 0, // operand: 'foo'
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("!!'foo'".to_string())
+        );
+    }
+
+    #[test]
+    fn test_tsquery_large_phrase_distance() {
+        // 'start' <100> 'end'
+        let buf = [
+            0u8, 0, 0, 3, // length prefix
+            2, 4, 0x00, 0x64, // PHRASE distance=100 (0x64)
+            1, 0, 0, b'e', b'n', b'd', 0, // right: 'end'
+            1, 0, 0, b's', b't', b'a', b'r', b't', 0, // left: 'start'
+        ];
+        assert_eq!(
+            extract_or_null(&Type::TSQUERY, &buf),
+            JsonValue::String("'start' <100> 'end'".to_string())
         );
     }
 
