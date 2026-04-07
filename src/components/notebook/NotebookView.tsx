@@ -600,6 +600,10 @@ export function NotebookView({
           />
         )}
 
+        <AddCellButton
+          onAddSql={() => addCell("sql", -1)}
+          onAddMarkdown={() => addCell("markdown", -1)}
+        />
         {cells.map((cell, index) => (
           <div
             key={`${cell.id}-${index}`}

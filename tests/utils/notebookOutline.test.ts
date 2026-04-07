@@ -71,19 +71,26 @@ describe("notebookOutline", () => {
       expect(extractOutline([])).toEqual([]);
     });
 
-    it("skips empty markdown cells without name", () => {
+    it("shows fallback for empty markdown cells without name", () => {
       const cells = [
         makeCell({ id: "c1", content: "" }),
         makeCell({ id: "c2", content: "   " }),
       ];
-      expect(extractOutline(cells)).toEqual([]);
+      const entries = extractOutline(cells);
+      expect(entries).toEqual([
+        { level: 1, text: "MD #1", cellId: "c1", cellIndex: 0, cellType: "markdown" },
+        { level: 1, text: "MD #2", cellId: "c2", cellIndex: 1, cellType: "markdown" },
+      ]);
     });
 
-    it("skips markdown cells with content but no headings and no name", () => {
+    it("shows fallback for markdown cells with content but no headings and no name", () => {
       const cells = [
         makeCell({ id: "c1", content: "Just plain text without headings" }),
       ];
-      expect(extractOutline(cells)).toEqual([]);
+      const entries = extractOutline(cells);
+      expect(entries).toEqual([
+        { level: 1, text: "MD #1", cellId: "c1", cellIndex: 0, cellType: "markdown" },
+      ]);
     });
 
     it("only extracts h1-h3 headings", () => {

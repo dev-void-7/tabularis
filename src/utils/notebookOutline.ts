@@ -46,7 +46,16 @@ export function extractOutline(cells: NotebookCell[]): OutlineEntry[] {
         continue;
       }
 
-      if (!cell.content.trim()) continue;
+      if (!cell.content.trim()) {
+        entries.push({
+          level: 1,
+          text: `MD #${i + 1}`,
+          cellId: cell.id,
+          cellIndex: i,
+          cellType: "markdown",
+        });
+        continue;
+      }
 
       const lines = cell.content.split("\n");
       let hasHeading = false;
@@ -64,8 +73,16 @@ export function extractOutline(cells: NotebookCell[]): OutlineEntry[] {
         }
       }
 
-      // If markdown cell has content but no headings, skip it
-      if (!hasHeading) continue;
+      // If markdown cell has content but no headings, show fallback
+      if (!hasHeading) {
+        entries.push({
+          level: 1,
+          text: `MD #${i + 1}`,
+          cellId: cell.id,
+          cellIndex: i,
+          cellType: "markdown",
+        });
+      }
     }
   }
 
