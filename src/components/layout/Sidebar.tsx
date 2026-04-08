@@ -262,7 +262,7 @@ export const Sidebar = () => {
             <div className="relative">
               <DiscordIcon size={24} />
             </div>
-            <span className="absolute left-14 bg-surface-secondary text-primary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+            <span className="absolute left-14 bg-surface-secondary text-primary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">
               Discord
             </span>
           </button>
@@ -274,7 +274,7 @@ export const Sidebar = () => {
             <div className="relative">
               <Cpu size={24} />
             </div>
-            <span className="absolute left-14 bg-surface-secondary text-primary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+            <span className="absolute left-14 bg-surface-secondary text-primary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">
               MCP Server
             </span>
           </button>
@@ -313,7 +313,7 @@ export const Sidebar = () => {
             title={t("sidebar.expandExplorer")}
           >
             <PanelLeft size={20} />
-            <span className="absolute left-14 top-1/2 -translate-y-1/2 bg-surface-secondary text-primary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+            <span className="absolute left-14 top-1/2 -translate-y-1/2 bg-surface-secondary text-primary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">
               {t("sidebar.expandExplorer")}
             </span>
           </button>

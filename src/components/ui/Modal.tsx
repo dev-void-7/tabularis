@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface ModalProps {
@@ -17,5 +18,8 @@ export const Modal = ({
 
   if (!isOpen) return null;
 
-  return <div className={overlayClassName}>{children}</div>;
+  return createPortal(
+    <div className={overlayClassName}>{children}</div>,
+    document.body,
+  );
 };

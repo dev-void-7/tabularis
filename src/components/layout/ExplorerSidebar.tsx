@@ -287,7 +287,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse }: Explo
         {/* Resize Handle */}
         <div
           onMouseDown={startResize}
-          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500/50 z-50 transition-colors"
+          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500/50 z-30 transition-colors"
         />
 
         {/* Tab switcher for split view */}
@@ -338,7 +338,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse }: Explo
                       className="fixed inset-0 z-40"
                       onClick={() => setIsActionsDropdownOpen(false)}
                     />
-                    <div className="absolute left-0 top-8 bg-elevated border border-default rounded-lg shadow-lg z-50 py-1 min-w-[200px]">
+                    <div className="absolute left-0 top-8 bg-elevated border border-default rounded-lg shadow-lg z-40 py-1 min-w-[200px]">
                       <button
                         onClick={() => {
                           handleImportDatabase();
@@ -582,7 +582,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse }: Explo
                                 className="fixed inset-0 z-40"
                                 onClick={() => setIsSchemaFilterOpen(false)}
                               />
-                              <div className="absolute right-0 top-8 bg-elevated border border-default rounded-lg shadow-lg z-50 py-2 min-w-[200px] max-h-[300px] flex flex-col">
+                              <div className="absolute right-0 top-8 bg-elevated border border-default rounded-lg shadow-lg z-40 py-2 min-w-[200px] max-h-[300px] flex flex-col">
                                 <div className="flex items-center justify-between px-3 pb-2 border-b border-default">
                                   <span className="text-xs font-semibold text-secondary">
                                     {t("sidebar.editSchemas")}
@@ -784,7 +784,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse }: Explo
                             className="fixed inset-0 z-40"
                             onClick={() => setIsDbManagerOpen(false)}
                           />
-                          <div className="absolute right-0 top-8 bg-elevated border border-default rounded-lg shadow-lg z-50 py-2 min-w-[200px] max-h-[320px] flex flex-col">
+                          <div className="absolute right-0 top-8 bg-elevated border border-default rounded-lg shadow-lg z-40 py-2 min-w-[200px] max-h-[320px] flex flex-col">
                             <div className="flex items-center justify-between px-3 pb-2 border-b border-default">
                               <span className="text-xs font-semibold text-secondary">
                                 {t("sidebar.manageDatabases")}
