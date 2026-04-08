@@ -95,3 +95,50 @@ export function removeResultEntry(
 
   return { results: filtered, nextActiveId };
 }
+
+/**
+ * Removes all entries except the one with the given id.
+ */
+export function removeOtherEntries(
+  results: QueryResultEntry[],
+  keepId: string,
+): { results: QueryResultEntry[]; nextActiveId: string } {
+  const kept = results.filter((r) => r.id === keepId);
+  return { results: kept, nextActiveId: keepId };
+}
+
+/**
+ * Removes all entries to the right of the given id.
+ */
+export function removeEntriesToRight(
+  results: QueryResultEntry[],
+  entryId: string,
+  activeResultId: string | undefined,
+): { results: QueryResultEntry[]; nextActiveId: string | undefined } {
+  const idx = results.findIndex((r) => r.id === entryId);
+  if (idx === -1) return { results, nextActiveId: activeResultId };
+  const kept = results.slice(0, idx + 1);
+  const activeStillExists = kept.some((r) => r.id === activeResultId);
+  return {
+    results: kept,
+    nextActiveId: activeStillExists ? activeResultId : entryId,
+  };
+}
+
+/**
+ * Removes all entries to the left of the given id.
+ */
+export function removeEntriesToLeft(
+  results: QueryResultEntry[],
+  entryId: string,
+  activeResultId: string | undefined,
+): { results: QueryResultEntry[]; nextActiveId: string | undefined } {
+  const idx = results.findIndex((r) => r.id === entryId);
+  if (idx === -1) return { results, nextActiveId: activeResultId };
+  const kept = results.slice(idx);
+  const activeStillExists = kept.some((r) => r.id === activeResultId);
+  return {
+    results: kept,
+    nextActiveId: activeStillExists ? activeResultId : entryId,
+  };
+}

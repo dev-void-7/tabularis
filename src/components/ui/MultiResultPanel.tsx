@@ -10,10 +10,14 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  ArrowRightToLine,
+  ArrowLeftToLine,
+  Trash2,
 } from "lucide-react";
 import clsx from "clsx";
 import { DataGrid } from "./DataGrid";
 import { ErrorDisplay } from "./ErrorDisplay";
+import { ContextMenu } from "./ContextMenu";
 import { formatDuration } from "../../utils/formatTime";
 import {
   findActiveEntry,
@@ -35,6 +39,10 @@ interface MultiResultPanelProps {
   onRerunEntry: (entryId: string) => void;
   onPageChange: (entryId: string, page: number) => void;
   onCloseEntry: (entryId: string) => void;
+  onCloseOtherEntries: (entryId: string) => void;
+  onCloseEntriesToRight: (entryId: string) => void;
+  onCloseEntriesToLeft: (entryId: string) => void;
+  onCloseAllEntries: () => void;
   onRenameEntry: (entryId: string, label: string) => void;
 }
 
@@ -46,6 +54,7 @@ function ResultTab({
   onRerun,
   onClose,
   onRename,
+  onContextMenu,
   canClose,
 }: {
   entry: QueryResultEntry;
@@ -55,6 +64,7 @@ function ResultTab({
   onRerun: () => void;
   onClose: () => void;
   onRename: (label: string) => void;
+  onContextMenu: (e: React.MouseEvent) => void;
   canClose: boolean;
 }) {
   const { t } = useTranslation();
@@ -92,6 +102,7 @@ function ResultTab({
   return (
     <div
       onClick={onSelect}
+      onContextMenu={onContextMenu}
       className={clsx(
         "group flex items-center gap-1 pl-2.5 pr-1 py-1.5 text-xs border-r border-default shrink-0 transition-colors cursor-pointer",
         isActive
@@ -186,15 +197,29 @@ export function MultiResultPanel({
   onRerunEntry,
   onPageChange,
   onCloseEntry,
+  onCloseOtherEntries,
+  onCloseEntriesToRight,
+  onCloseEntriesToLeft,
+  onCloseAllEntries,
   onRenameEntry,
 }: MultiResultPanelProps) {
   const { t } = useTranslation();
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    entryId: string;
+  } | null>(null);
   const activeEntry = findActiveEntry(results, activeResultId);
   const succeeded = countSucceeded(results);
   const failed = countFailed(results);
   const totalTime = totalExecutionTime(results);
 
   if (!activeEntry) return null;
+
+  const handleContextMenu = (entryId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, entryId });
+  };
 
   return (
     <div className="flex-1 min-h-0 flex flex-col">
@@ -211,6 +236,7 @@ export function MultiResultPanel({
               onRerun={() => onRerunEntry(entry.id)}
               onClose={() => onCloseEntry(entry.id)}
               onRename={(label) => onRenameEntry(entry.id, label)}
+              onContextMenu={(e) => handleContextMenu(entry.id, e)}
               canClose={results.length > 1}
             />
           ))}
@@ -364,6 +390,51 @@ export function MultiResultPanel({
           </div>
         )}
       </div>
+
+      {/* Tab context menu */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          items={[
+            {
+              label: t("editor.closeTab"),
+              icon: X,
+              action: () => onCloseEntry(contextMenu.entryId),
+              disabled: results.length <= 1,
+            },
+            {
+              label: t("editor.closeOthers"),
+              icon: XCircle,
+              action: () => onCloseOtherEntries(contextMenu.entryId),
+              disabled: results.length <= 1,
+            },
+            {
+              label: t("editor.closeRight"),
+              icon: ArrowRightToLine,
+              action: () => onCloseEntriesToRight(contextMenu.entryId),
+              disabled:
+                results.findIndex((r) => r.id === contextMenu.entryId) ===
+                results.length - 1,
+            },
+            {
+              label: t("editor.closeLeft"),
+              icon: ArrowLeftToLine,
+              action: () => onCloseEntriesToLeft(contextMenu.entryId),
+              disabled:
+                results.findIndex((r) => r.id === contextMenu.entryId) === 0,
+            },
+            { separator: true },
+            {
+              label: t("editor.closeAll"),
+              icon: Trash2,
+              danger: true,
+              action: () => onCloseAllEntries(),
+            },
+          ]}
+        />
+      )}
     </div>
   );
 }

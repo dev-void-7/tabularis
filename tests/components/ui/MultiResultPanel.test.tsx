@@ -55,6 +55,10 @@ describe("MultiResultPanel", () => {
   const mockOnRerunEntry = vi.fn();
   const mockOnPageChange = vi.fn();
   const mockOnCloseEntry = vi.fn();
+  const mockOnCloseOtherEntries = vi.fn();
+  const mockOnCloseEntriesToRight = vi.fn();
+  const mockOnCloseEntriesToLeft = vi.fn();
+  const mockOnCloseAllEntries = vi.fn();
   const mockOnRenameEntry = vi.fn();
 
   beforeEach(() => {
@@ -71,6 +75,10 @@ describe("MultiResultPanel", () => {
     onRerunEntry: mockOnRerunEntry,
     onPageChange: mockOnPageChange,
     onCloseEntry: mockOnCloseEntry,
+    onCloseOtherEntries: mockOnCloseOtherEntries,
+    onCloseEntriesToRight: mockOnCloseEntriesToRight,
+    onCloseEntriesToLeft: mockOnCloseEntriesToLeft,
+    onCloseAllEntries: mockOnCloseAllEntries,
     onRenameEntry: mockOnRenameEntry,
   };
 

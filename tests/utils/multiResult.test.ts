@@ -7,6 +7,9 @@ import {
   countFailed,
   totalExecutionTime,
   removeResultEntry,
+  removeOtherEntries,
+  removeEntriesToRight,
+  removeEntriesToLeft,
 } from "../../src/utils/multiResult";
 import type { QueryResultEntry } from "../../src/types/editor";
 
@@ -288,6 +291,86 @@ describe("multiResult", () => {
       );
       expect(results).toEqual(entries);
       expect(nextActiveId).toBe("a");
+    });
+  });
+
+  describe("removeOtherEntries", () => {
+    it("should keep only the specified entry", () => {
+      const entries = [
+        makeEntry({ id: "a" }),
+        makeEntry({ id: "b" }),
+        makeEntry({ id: "c" }),
+      ];
+      const { results, nextActiveId } = removeOtherEntries(entries, "b");
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe("b");
+      expect(nextActiveId).toBe("b");
+    });
+  });
+
+  describe("removeEntriesToRight", () => {
+    it("should remove entries after the specified one", () => {
+      const entries = [
+        makeEntry({ id: "a" }),
+        makeEntry({ id: "b" }),
+        makeEntry({ id: "c" }),
+      ];
+      const { results } = removeEntriesToRight(entries, "a", "a");
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe("a");
+    });
+
+    it("should update activeId if active was removed", () => {
+      const entries = [
+        makeEntry({ id: "a" }),
+        makeEntry({ id: "b" }),
+        makeEntry({ id: "c" }),
+      ];
+      const { nextActiveId } = removeEntriesToRight(entries, "a", "c");
+      expect(nextActiveId).toBe("a");
+    });
+
+    it("should keep activeId if still present", () => {
+      const entries = [
+        makeEntry({ id: "a" }),
+        makeEntry({ id: "b" }),
+        makeEntry({ id: "c" }),
+      ];
+      const { nextActiveId } = removeEntriesToRight(entries, "b", "a");
+      expect(nextActiveId).toBe("a");
+    });
+  });
+
+  describe("removeEntriesToLeft", () => {
+    it("should remove entries before the specified one", () => {
+      const entries = [
+        makeEntry({ id: "a" }),
+        makeEntry({ id: "b" }),
+        makeEntry({ id: "c" }),
+      ];
+      const { results } = removeEntriesToLeft(entries, "c", "c");
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe("c");
+    });
+
+    it("should update activeId if active was removed", () => {
+      const entries = [
+        makeEntry({ id: "a" }),
+        makeEntry({ id: "b" }),
+        makeEntry({ id: "c" }),
+      ];
+      const { nextActiveId } = removeEntriesToLeft(entries, "c", "a");
+      expect(nextActiveId).toBe("c");
+    });
+
+    it("should keep activeId if still present", () => {
+      const entries = [
+        makeEntry({ id: "a" }),
+        makeEntry({ id: "b" }),
+        makeEntry({ id: "c" }),
+      ];
+      const { nextActiveId } = removeEntriesToLeft(entries, "b", "c");
+      expect(nextActiveId).toBe("c");
     });
   });
 });

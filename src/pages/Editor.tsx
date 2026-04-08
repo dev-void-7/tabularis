@@ -65,6 +65,9 @@ import {
   createResultEntries,
   updateResultEntry,
   removeResultEntry,
+  removeOtherEntries,
+  removeEntriesToRight,
+  removeEntriesToLeft,
 } from "../utils/multiResult";
 import {
   extractQueryParams,
@@ -2456,6 +2459,44 @@ export const Editor = () => {
                       activeResultId: nextActiveId,
                     });
                   }
+                }}
+                onCloseOtherEntries={(entryId) => {
+                  const { results: newResults, nextActiveId } =
+                    removeOtherEntries(activeTab.results!, entryId);
+                  updateTab(activeTab.id, {
+                    results: newResults,
+                    activeResultId: nextActiveId,
+                  });
+                }}
+                onCloseEntriesToRight={(entryId) => {
+                  const { results: newResults, nextActiveId } =
+                    removeEntriesToRight(
+                      activeTab.results!,
+                      entryId,
+                      activeTab.activeResultId,
+                    );
+                  updateTab(activeTab.id, {
+                    results: newResults,
+                    activeResultId: nextActiveId,
+                  });
+                }}
+                onCloseEntriesToLeft={(entryId) => {
+                  const { results: newResults, nextActiveId } =
+                    removeEntriesToLeft(
+                      activeTab.results!,
+                      entryId,
+                      activeTab.activeResultId,
+                    );
+                  updateTab(activeTab.id, {
+                    results: newResults,
+                    activeResultId: nextActiveId,
+                  });
+                }}
+                onCloseAllEntries={() => {
+                  updateTab(activeTab.id, {
+                    results: undefined,
+                    activeResultId: undefined,
+                  });
                 }}
                 onRenameEntry={(entryId, label) => {
                   updateTab(activeTab.id, {
